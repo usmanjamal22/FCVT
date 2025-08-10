@@ -1,0 +1,145 @@
+﻿@{
+    ViewData["Title"] = "Role Permission";
+}
+
+@section Scripts {
+    <script>
+          $(document).ready(function () {
+           LoadRolesOfMenuAsset('Menu');
+           LoadRolesOfMenuAsset('Assets');
+          });
+
+
+          $('#menuRoleSelect').change(function () {
+               var RoleId = $(this).val();
+              $('#menuTree').jstree("destroy");
+              if (RoleId) {
+                  // First: fetch data manually to debug
+                  $.getJSON('/Permissions/GetAllMenuLst', { RoleId: RoleId })
+                      .done(function (data) {
+                          $('#menuTree').jstree({
+                              'core': {
+                                  'data': data
+                              },
+                              'plugins': ["checkbox"]
+                          });
+                      })
+                      .fail(function (xhr, status, error) {
+                          console.error("Error fetching menu list:", error);
+                      });
+              }
+          });
+
+
+          // Load Vehicle Tree on role select
+          $('#vehicleRoleSelect').change(function () {
+              var RoleId = $(this).val();
+              $('#vehicleTree').jstree("destroy");
+              if (RoleId) {
+                  $('#vehicleTree').jstree({
+                      'core': {
+                          'data': {
+                              'url': '/Permissions/GetVehicleByRole?RoleId=' + RoleId,
+                              'dataType': 'json'
+                          }
+                      },
+                      'plugins': ["checkbox"]
+                  });
+              }
+          });
+
+          // Save Menu Permissions
+        $('#saveMenu').click(function () {
+            var roleId = $('#menuRoleSelect').val();
+            var selectedIds = $('#menuTree').jstree("get_checked");
+            $.ajax({
+                url: '/Permissions/AddRoleMenu',
+                type: 'POST',
+                traditional: true, // <-- This makes arrays bind correctly in MVC
+                data: { 
+                    roleId: roleId,
+                    menuIds: selectedIds 
+                },
+                success: function () {
+                    alert("Menu permissions saved.");
+                }
+            });
+        });
+
+
+          // Save Vehicle Permissions
+          $('#saveVehicle').click(function () {
+            var roleId = $('#vehicleRoleSelect').val();
+            var selectedIds = $('#vehicleTree').jstree("get_checked");
+            $.ajax({
+                url: '/Permissions/AddRoleAssets',
+                type: 'POST',
+                traditional: true,
+                data: { 
+                    roleId: roleId,
+                    menuIds: selectedIds 
+                },
+                success: function () {
+                    alert("Asset permissions saved.");
+                }
+            });
+          });
+
+          function LoadRolesOfMenuAsset(roleType) {
+          $.get('/Permissions/GetAllMenuAssetRolesLst', { roleType: roleType }, function (data) {
+              if(roleType == 'Menu'){
+              var $select = $('#menuRoleSelect');
+              $select.empty();
+              $select.append('<option value="">Select Menu Role</option>');
+              data.forEach(function (item) {
+                  $select.append('<option value="' + item.id + '">' + item.roleName + '</option>');
+              });
+              $select.select2({
+                  placeholder: 'Select Menu Role',
+                  allowClear: true,
+                  width: '100%'
+              });
+              }
+              else{
+               var $select = $('#vehicleRoleSelect');
+              $select.empty();
+              $select.append('<option value="">Select Asset Role</option>');
+              data.forEach(function (item) {
+                  $select.append('<option value="' + item.id + '">' + item.roleName + '</option>');
+              });
+              $select.select2({
+                  placeholder: 'Select Asset Role',
+                  allowClear: true,
+                  width: '100%'
+              });
+              }
+          });
+        }
+    </script>
+}
+
+
+<div class="container-fluid">
+    <div class="row">
+        <!-- Left Panel -->
+        <div class="col-md-6 border-end">
+            <h4>Menu Role Assignment</h4>
+            <select id="menuRoleSelect" class="form-control">
+            </select>
+            <br />
+            <div id="menuTree" class="border p-2" style="height:400px; overflow:auto;"></div>
+            <button id="saveMenu" class="btn btn-primary mt-2">Save Menu Permissions</button>
+        </div>
+
+        <!-- Right Panel -->
+        <div class="col-md-6">
+            <h4>Vehicle Role Assignment</h4>
+            <select id="vehicleRoleSelect" class="form-control mb-2"></select>
+            <br />
+            <div id="vehicleTree" class="border p-2" style="height:400px; overflow:auto;"></div>
+            <button id="saveVehicle" class="btn btn-primary mt-2">Save Vehicle Permissions</button>
+        </div>
+    </div>
+</div>
+
+

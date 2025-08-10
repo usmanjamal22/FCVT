@@ -1,0 +1,164 @@
+﻿@{
+    ViewData["Title"] = "Roles Management";
+}
+
+<h2>Roles Managements</h2>
+
+<button class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#addUserModal">
+    <i class="bi bi-plus-circle"></i> Add Role
+</button>
+
+
+<table id="usersTable" class="display" style="width:100%">
+    <thead>
+        <tr>
+            <th>Role Name</th>
+            <th>Role Type</th>
+            <th>Description</th>
+            <th>Created On</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+</table>
+
+<!-- Add User Modal -->
+<div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form id="addUserForm">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addUserModalLabel">Add New Role</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label>Role Name</label>
+                            <input type="text" class="form-control" name="RoleName" id="RoleName" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Role Type</label>
+                            <select class="form-control" name="RoleType" id="RoleType" required>
+                                <option value="Assets">Assets</option>
+                                <option value="Menu">Menu</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Description</label>
+                            <textarea class="form-control" name="Description" id="Description" rows="4"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-success">Save</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#usersTable').DataTable({
+                "ajax": {
+                    "url": "/Permissions/GetRoles",
+                    "type": "GET",
+                    "datatype": "json"
+                },
+                "columns": [
+
+                    { "data": "roleName" },
+                    { "data": "roleType" },
+                    { "data": "description" },
+                    {
+                        "data": "createdAt",
+                        "render": function (data) {
+                            return new Date(data).toLocaleDateString();
+                        }
+                    },
+                    {
+                    "data": "id",
+                    "render": function (data, type, row) {
+                        if (!data) return "";
+
+                        if (row.roleName.toLowerCase() === "adminmenu" || row.roleName.toLowerCase() === "adminassets" ) {
+                            return `<span class="text-muted">Delete Disabled</span>`;
+                        }
+
+                     return `<a href="#" class="text-danger delete-user" data-id="${row.id}" data-roleName="${row.roleName}" >Delete</a>`;},
+                    "orderable": false
+                    }
+                ]
+            });
+
+            // Handle Add User Form Submission
+        $('#addUserForm').on('submit', function (e) {
+                e.preventDefault();
+                var formData = $(this).serialize();
+                $.ajax({
+                    url: '/Permissions/AddRoles',
+                    type: 'POST',
+                    data: formData,
+                    success: function (response) {
+                         $('#usersTable').DataTable().ajax.reload(null, false);
+                        $('#addUserModal').modal('hide');
+                        $('#addUserForm')[0].reset();
+                        table.ajax.reload(null, false); // Reload DataTable without full refresh
+                        alert("User added successfully.");
+                    },
+                    error: function () {
+                        alert("Error while saving user.");
+                    }
+                });
+            });
+
+        function generateRandomString(length) {
+            var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789#$&';
+            var result = '';
+            for (var i = 0; i < length; i++) {
+                result += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return result;
+        }
+
+        $('#FirstName').on('input', function () {
+            var firstName = $(this).val().trim();
+            if (firstName.length > 0) {
+                var randomPart = generateRandomString(10);
+                var userName = (firstName + randomPart);
+                $('#UserName').val(userName);
+            } else {
+                $('#UserName').val('');
+            }
+        });
+
+
+        $('#usersTable').on('click', '.delete-user', function (e) {
+        e.preventDefault();
+           var userId = $(this).data('id');
+           var userName=$(this).data('username');
+            if (confirm(`Are you sure you want to delete user '${userName}'?`)) {
+                $.ajax({
+                    url: '/Permissions/DeleteRole',
+                    type: 'POST',
+                    data: { id: userId },
+                    success: function (response) {
+                        $('#usersTable').DataTable().ajax.reload(null, false);
+                    },
+                    error: function () {
+                        alert("Error deleting user.");
+                    }
+                });
+            }
+        });
+
+
+
+        });
+    </script>
+}

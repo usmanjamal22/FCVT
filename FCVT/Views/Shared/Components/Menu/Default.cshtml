@@ -1,0 +1,35 @@
+﻿@model List<FCVT.Models.IsMenu>
+<ul class="navbar-nav flex-grow-1">
+    @foreach (var item in Model)
+    {
+        var pname = item.pname;
+        var pcontroller = item.pcontroller;
+        var paction = item.paction;
+        var Ccount = item.Haschild?.Count ?? 0;
+        if (Ccount > 0)
+        {
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle text-dark" href="#" id="menuDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    @pname
+                </a>
+                <ul class="dropdown-menu" aria-labelledby="menuDropdown">
+                    @foreach (var child in item.Haschild)
+                    {
+                        <li><a class="dropdown-item" asp-controller="@child.controller" asp-action="@child.action">@child.cname</a></li>
+                    }
+                </ul>
+            </li>
+        }
+        else
+        {
+            @*  if (string.IsNullOrEmpty(pcontroller))
+            {
+                <li class="nav-item"><a class="nav-link" href="#">@pname</a></li>
+            }
+            else
+            {
+                <li class="nav-item"><a class="nav-link" asp-controller="@pcontroller" asp-action="@paction">@pname</a></li>
+            } *@
+        }
+    }
+</ul>

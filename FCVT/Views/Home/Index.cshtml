@@ -1,0 +1,103 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<!-- Custom Styles -->
+<style>
+    html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+    }
+
+    #main-container {
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        padding: 0;
+        margin: 0;
+    }
+
+    #controls {
+        padding: 10px;
+        background-color: #f8f9fa;
+        border-bottom: 1px solid #ddd;
+    }
+
+    #map {
+        flex: 1;
+        width: 100%;
+    }
+</style>
+
+<!-- Controls and Map Layout -->
+<div class="container-fluid" id="main-container">
+    <!-- Controls: Horizontal layout using Bootstrap -->
+    <div id="controls" class="d-flex flex-wrap align-items-center gap-3">
+        <select class="form-select w-auto">
+            <option selected>Select Assets</option>
+            <option value="-1">SELECT All</option>
+            <option value="2">BBX-727</option>
+            <option value="3">BAQ-321</option>
+            <option value="4">BHQ-123</option>
+            <option value="5">BPY-9812</option>
+            <option value="6">AQE-227</option>
+            <option value="7">SEW-777</option>
+        </select>
+
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="ChkBoxLiveMonitering">
+            <label class="form-check-label" for="ChkBoxLiveMonitering">
+                Live View
+            </label>
+        </div>
+
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="ChkViewAlarms">
+            <label class="form-check-label" for="ChkViewAlarms">
+                View Alarms
+            </label>
+        </div>
+
+        <button class="btn btn-primary">Apply</button>
+    </div>
+
+    <!-- Map container -->
+    <div id="map"></div>
+</div>
+
+<!-- Leaflet.js CSS & JS (Only for this page) -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://api1.tplmaps.com/js-api-v2/assets/tplmaps.js?api_key=$2a$10$RNdeMDBGrOwbnh81N3RzTDGUxKVId3cLscU3V3HkGdRLKhwI0oOQe"></script>
+<script>
+    // document.addEventListener('DOMContentLoaded', function () {
+    //     var map = L.map('map').setView([25.276987, 55.296249], 12); // Example location
+
+    //     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    //         maxZoom: 19
+    //     }).addTo(map);
+    // });
+
+    var userMap;
+    var ArrayOfStoreLastLocation = [];
+    var ArrayOfmarker=[];
+    var ArrayOfmarkerSimple=[];
+    var ContactType;
+    var FuelLastStatus=0;
+    var BatteryVoltageLastStatus=0;
+    window.onload = function () {
+        var mapOption = {
+            lat: 30.37532100,
+            lng: 69.34511599,
+            zoom: 6,
+            minZoom: 0,
+            maxZoom: 20,
+            divID: "map",
+            gestureHandling: false
+        };
+        userMap = TPLMaps.map.initMap(mapOption);
+    }; //On Load end
+
+
+</script>
