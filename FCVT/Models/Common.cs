@@ -69,4 +69,10 @@ namespace FCVT.Models
         public string Status { get; set; }
         public string Message { get; set; }
     }
+    public class UserRoleMapping
+    {
+        public string RoleId { get; set; }
+        public string RoleName { get; set; }
+        public string RoleType { get; set; }
+    }
 }

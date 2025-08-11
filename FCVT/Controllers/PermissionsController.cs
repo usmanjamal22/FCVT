@@ -174,8 +174,38 @@ namespace FCVT.Controllers
             return BadRequest("Invalid data");
         }
 
-        
+        #endregion
 
+        #region Role Assigning
+        public IActionResult RoleAssigning()
+        {
+            return View();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetUserRoleLst(string InputType)
+        {
+            var Lst = await _permission.GetUserRoleLst(InputType);
+            return Json(Lst);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AssignRolesToUser(string userId, string menuRoleId, string assetRoleId)
+        {
+            if (ModelState.IsValid)
+            {
+                var users = await _permission.AddUserRoleMapping(userId, menuRoleId, assetRoleId);
+                return Ok();
+            }
+            return BadRequest("Invalid data");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetUserRoleMapping(string userID)
+        {
+            var Lst = await _permission.GetUserRoleMapping(userID);
+            return Json(Lst);
+        }
         #endregion
 
     }

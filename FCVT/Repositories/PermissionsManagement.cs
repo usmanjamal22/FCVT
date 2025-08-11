@@ -1,6 +1,7 @@
 ﻿using FCVT.DAL;
 using FCVT.Interfaces;
 using FCVT.Models;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using System.Net;
 
 namespace FCVT.Repositories
@@ -74,6 +75,23 @@ namespace FCVT.Repositories
         public async Task<CommonResponce> AddRoleAssets(string RoleID, string AssetIds, string Loginid)
         {
             var result = await _dbHelper.AddRoleAssets(RoleID, AssetIds, Loginid);
+            return result;
+        }
+
+        public async Task<IEnumerable<CommonSelect>> GetUserRoleLst(string InputType)
+        {
+            var result = await _dbHelper.GetUserRoleLst(InputType);
+            return result;
+        }
+
+        public async Task<CommonResponce> AddUserRoleMapping(string UserID, string RoleMenuID, string RoleAssetID)
+        {
+            var result = await _dbHelper.AddUserRoleMapping(UserID, RoleMenuID, RoleAssetID);
+            return result;
+        }
+        public async Task<IEnumerable<UserRoleMapping>> GetUserRoleMapping(string UserID)
+        {
+            var result = await _dbHelper.GetUserRoleMapping(UserID);
             return result;
         }
 

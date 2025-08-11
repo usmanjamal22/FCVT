@@ -23,5 +23,11 @@ namespace FCVT.Interfaces
         Task<CommonResponce> AddRoleMenu(string RoleID, string MenuIds, string Loginid);
 
         Task<CommonResponce> AddRoleAssets(string RoleID, string AssetIds, string Loginid);
+
+        Task<IEnumerable<CommonSelect>> GetUserRoleLst(string InputType);
+
+        Task<CommonResponce> AddUserRoleMapping(string UserID, string RoleMenuID, string RoleAssetID);
+
+        Task<IEnumerable<UserRoleMapping>> GetUserRoleMapping(string UserID);
     }
 }

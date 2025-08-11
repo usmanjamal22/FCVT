@@ -78,4 +78,9 @@ namespace FCVT.Models
         public string MenuIds { get; set; }
     }
 
+    public class CommonSelect
+    {
+        public string Id { get; set; }
+        public string Name { get; set; }
+    }
 }

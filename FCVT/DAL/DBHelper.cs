@@ -193,7 +193,6 @@ namespace FCVT.DAL
 
         #endregion
 
-
         #region Assign Role Permission
         public async Task<IEnumerable<MenuLst>> GetAllMenusLst(string InputType, string RoleId)
         {
@@ -274,8 +273,58 @@ namespace FCVT.DAL
                 );
             }
         }
+        #endregion
 
-        
+        #region Role Assigning
+        public async Task<IEnumerable<CommonSelect>> GetUserRoleLst(string InputType)
+        {
+            using (var connection = new SqlConnection(_configuration["ConnectionStrings:DefaultConnection"]))
+            {
+                await connection.OpenAsync();
+
+                var parameters = new DynamicParameters();
+                parameters.Add("@InputType", InputType, DbType.String);
+
+                return await connection.QueryAsync<CommonSelect>(
+                    "FCVT_GetUserRoleLst_SP"
+                    , parameters
+                    , commandType: CommandType.StoredProcedure
+                    );
+
+            }
+        }
+
+        public async Task<CommonResponce> AddUserRoleMapping(string UserID, string RoleMenuID, string RoleAssetID)
+        {
+            using (var connection = new SqlConnection(_configuration["ConnectionStrings:DefaultConnection"]))
+            {
+                await connection.OpenAsync();
+                var parameters = new DynamicParameters();
+                parameters.Add("@UserID", UserID, DbType.String);
+                parameters.Add("@RoleMenuID", RoleMenuID, DbType.String);
+                parameters.Add("@RoleAssetID", RoleAssetID, DbType.String);
+                return await connection.QueryFirstOrDefaultAsync<CommonResponce>(
+                    "FCVT_AddUserRoleMapping_SP",
+                    parameters,
+                    commandType: CommandType.StoredProcedure
+                );
+            }
+        }
+
+        public async Task<IEnumerable<UserRoleMapping>> GetUserRoleMapping(string UserID)
+        {
+            using (var connection = new SqlConnection(_configuration["ConnectionStrings:DefaultConnection"]))
+            {
+                await connection.OpenAsync();
+                var parameters = new DynamicParameters();
+                parameters.Add("@UserID", UserID, DbType.String);
+                return await connection.QueryAsync<UserRoleMapping>(
+                    "FCVT_GetUserRoleMapping_SP",
+                    parameters,
+                    commandType: CommandType.StoredProcedure
+                );
+            }
+        }
 
 
         #endregion

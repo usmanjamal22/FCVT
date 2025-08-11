@@ -1,0 +1,134 @@
+﻿@{
+    ViewData["Title"] = "User Role Assignment";
+}
+<style>
+    #assetRoleSelect {
+        margin-bottom: 30px; /* custom space */
+    }
+</style>
+<div class="container mt-4">
+    <h3>User Role Assignment</h3>
+    <div class="row">
+        <div class="col-md-4 offset-md-4">
+            <label for="userSelect" class="form-label">Select User</label>
+            <select id="userSelect" class="form-control mb-3">
+                <option value="">-- Select User --</option>
+            </select>
+
+
+            <label for="menuRoleSelect" class="form-label">Assign Menu Role</label>
+            <select id="menuRoleSelect" class="form-control mb-3">
+                <option value="">-- Select Menu Role --</option>
+            </select>
+
+            <label for="assetRoleSelect" class="form-label">Assign Asset Role</label>
+            <select id="assetRoleSelect" class="form-control mb-3">
+                <option value="">-- Select Asset Role --</option>
+            </select>
+
+            <br />
+            <label for="assetRoleSelect" class="form-label"> </label>
+            <button id="saveUserRoles" class="btn btn-primary w-100">Save Assignments</button>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Enable select2 on all dropdowns
+            $('#userSelect, #menuRoleSelect, #assetRoleSelect').select2({
+                placeholder: "Select an option",
+                allowClear: true,
+                width: '100%'
+            });
+
+            // Load Users
+            $.get('/Permissions/GetUserRoleLst', { InputType: 'user' } , function (data) {
+                var $select = $('#userSelect');
+                data.forEach(function (u) {
+                    $select.append('<option value="' + u.id + '">' + u.name + '</option>');
+                });
+                $select.trigger('change.select2');
+            });
+
+            // Load Menu Roles
+            $.get('/Permissions/GetUserRoleLst', { InputType: 'usermenu' }, function (data) {
+                var $select = $('#menuRoleSelect');
+                data.forEach(function (item) {
+                    $select.append('<option value="' + item.id + '">' + item.name + '</option>');
+                });
+                $select.trigger('change.select2');
+            });
+
+            $('#userSelect').change(function () {
+                var userId = $(this).val();
+                if (!userId) return;
+
+                $.get('/Permissions/GetUserRoleMapping', { userID: userId }, function (data) {
+                    if(data != null && data.length != 0){
+                    var menuRoleId = data
+                            .filter(r => r.roleType === "Menu")
+                            .map(r => r.roleId);
+
+                    var assetRoleId = data
+                            .filter(r => r.roleType === "Assets")
+                            .map(r => r.roleId);
+
+                    // Set Menu Role
+                    if (menuRoleId != 0) {
+                        $('#menuRoleSelect').val(menuRoleId).trigger('change');
+                    } else {
+                        $('#menuRoleSelect').val(null).trigger('change');
+                    }
+
+                    // Set Asset Role
+                    if (assetRoleId != 0) {
+                        $('#assetRoleSelect').val(assetRoleId).trigger('change');
+                    } else {
+                        $('#assetRoleSelect').val(null).trigger('change');
+                    }
+                    }
+                    else {
+                        //alert("no role assign yet");
+                         $('#menuRoleSelect').val(null).trigger('change');
+                           $('#assetRoleSelect').val(null).trigger('change');
+                    }
+
+                });
+            });
+
+
+            // Load Asset Roles
+            $.get('/Permissions/GetUserRoleLst', { InputType: 'userAssets' }, function (data) {
+                var $select = $('#assetRoleSelect');
+                data.forEach(function (item) {
+                    $select.append('<option value="' + item.id + '">' + item.name + '</option>');
+                });
+                $select.trigger('change.select2');
+            });
+
+            // Save Assignments
+            $('#saveUserRoles').click(function () {
+                var userId = $('#userSelect').val();
+                var menuRoleId = $('#menuRoleSelect').val();
+                var assetRoleId = $('#assetRoleSelect').val();
+
+                if (!userId || !menuRoleId || !assetRoleId) {
+                    alert("Please select all fields before saving.");
+                    return;
+                }
+
+                $.post('/Permissions/AssignRolesToUser', {
+                    userId: userId,
+                    menuRoleId: menuRoleId,
+                    assetRoleId: assetRoleId
+                }, function () {
+                    alert("Roles assigned successfully.");
+                });
+            });
+
+
+        });
+    </script>
+}
