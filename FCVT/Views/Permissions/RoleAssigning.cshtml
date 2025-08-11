@@ -90,15 +90,11 @@
                     }
                     }
                     else {
-                        //alert("no role assign yet");
                          $('#menuRoleSelect').val(null).trigger('change');
-                           $('#assetRoleSelect').val(null).trigger('change');
+                         $('#assetRoleSelect').val(null).trigger('change');
                     }
-
                 });
             });
-
-
             // Load Asset Roles
             $.get('/Permissions/GetUserRoleLst', { InputType: 'userAssets' }, function (data) {
                 var $select = $('#assetRoleSelect');
