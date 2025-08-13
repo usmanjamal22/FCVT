@@ -1,0 +1,148 @@
+﻿@{
+    ViewData["Title"] = "Asset Region Mapping";
+}
+
+<h2>Asset Region Mapping</h2>
+
+<button class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#addUserModal">
+    <i class="bi bi-plus-circle"></i> Add Records
+</button>
+
+
+<table id="usersTable" class="display" style="width:100%">
+    <thead>
+        <tr>
+            <th>Device ID</th>
+            <th>Asset</th>
+            <th>Region</th>
+            <th>Color</th>
+        </tr>
+    </thead>
+</table>
+
+<!-- Add User Modal -->
+<div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form id="addUserForm">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addUserModalLabel">Add Asset Region</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="userSelect" class="form-label">Select User</label>
+                            <select id="userSelect" name="Asset" class="form-control mb-3">
+                                <option value="">-- Select Asset --</option>
+                            </select>
+                        </div>
+
+<div class="col-md-6">
+    <label for="regionSelect" class="form-label">Select Region</label>
+    <select id="regionSelect" class="form-control mb-3" name="Region" required>
+        <option value="">-- Select Region --</option>
+        <option value="Quetta to Khuzdar">Quetta to Khuzdar</option>
+        <option value="Quetta to Chaman">Quetta to Chaman</option>
+        <option value="Quetta to Kech">Quetta to Kech</option>
+        <option value="Quetta to Gwadar">Quetta to Gwadar</option>
+    </select>
+</div>
+
+<div class="col-md-6">
+    <label for="txtColor" class="form-label">Select Color</label>
+    <input type="text" id="txtColor" class="form-control mb-3" name="Color" readonly required />
+</div>
+
+<div class="col-md-6">
+    <label for="commentstext" class="form-label">Comments</label>
+    <input type="text" id="commentstext" class="form-control mb-3" name="Comments" required />
+</div>
+
+
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-success">Save</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+             // Enable select2 on all dropdowns
+            $('#userSelect,#regionSelect').select2({
+                placeholder: "Select an option",
+                allowClear: true,
+                width: '100%',
+                dropdownParent: $('#addUserModal') 
+            });
+
+            // Load Users
+            $.get('/Permissions/GetAsset', { InputType: 'user' } , function (data) {
+                var $select = $('#userSelect');
+                data.data.forEach(function (u) {
+                    $select.append('<option value="' + u.asset + '">' + u.asset + '</option>');
+                });
+                $select.trigger('change.select2');
+            });
+
+            
+           $('#regionSelect').change(function () {
+                var color = "";
+                switch ($(this).val()) {
+                    case "Quetta to Khuzdar": color = "Red#FF0000"; break;
+                    case "Quetta to Chaman": color = "Maroon#800000"; break;
+                    case "Quetta to Kech": color = "Yellow#FFFF00"; break;
+                    case "Quetta to Gwadar": color = "Olive#808000"; break;
+                    default: color = "Green#008000"; break;
+                }
+                $('#txtColor').val(color);
+            });
+
+
+            $('#usersTable').DataTable({
+                "ajax": {
+                    "url": "/Permissions/GetAsset",
+                    "type": "GET",
+                    "datatype": "json"
+                },
+                "pageLength": 50,       // show 50 rows by default
+                "lengthChange": false,  // hide the "Show X entries" dropdown
+                 "info": false, 
+                "columns": [
+
+                    { "data": "id" },
+                    { "data": "asset" },
+                    { "data": "region" },
+                    { "data": "color" }
+                ]
+            });
+
+           $('#addUserForm').on('submit', function (e) {
+                e.preventDefault();
+                $.ajax({
+                    url: '/Permissions/UpdateAssetRegionMapping',
+                    type: 'POST',
+                    data: $(this).serialize(),
+                    success: function (response) {
+                        $('#usersTable').DataTable().ajax.reload(null, false);
+                        $('#addUserModal').modal('hide');
+                        $('#addUserForm')[0].reset();
+                        alert("User added successfully.");
+                    },
+                    error: function () {
+                        alert("Error while saving user.");
+                    }
+                });
+            });
+        });
+    </script>
+}

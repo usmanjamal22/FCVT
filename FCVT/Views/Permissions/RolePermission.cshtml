@@ -56,9 +56,9 @@
                 url: '/Permissions/AddRoleMenu',
                 type: 'POST',
                 traditional: true, // <-- This makes arrays bind correctly in MVC
-                data: { 
+                data: {
                     roleId: roleId,
-                    menuIds: selectedIds 
+                    menuIds: selectedIds
                 },
                 success: function () {
                     alert("Menu permissions saved.");
@@ -70,14 +70,24 @@
           // Save Vehicle Permissions
           $('#saveVehicle').click(function () {
             var roleId = $('#vehicleRoleSelect').val();
-            var selectedIds = $('#vehicleTree').jstree("get_checked");
+            //var selectedIds = $('#vehicleTree').jstree("get_checked");
+
+            var selectedNodes = $('#vehicleTree').jstree("get_checked", true); // true = return full node objects
+            var selectedTexts = selectedNodes.map(function (node) {
+                return node.text; // "text" contains the label
+                });
+
+            console.log(selectedTexts); // array of names
+
+            alert(selectedTexts);
+
             $.ajax({
                 url: '/Permissions/AddRoleAssets',
                 type: 'POST',
                 traditional: true,
-                data: { 
+                data: {
                     roleId: roleId,
-                    menuIds: selectedIds 
+                    menuIds: selectedTexts
                 },
                 success: function () {
                     alert("Asset permissions saved.");

@@ -208,5 +208,44 @@ namespace FCVT.Controllers
         }
         #endregion
 
+        #region Asset Region Mapping
+        public IActionResult AssetRegionMapping()
+        {
+            return View();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAsset()
+        {
+            var result = await _permission.GetAssets();
+            return Json(new { data = result });
+        }
+
+
+        [HttpPost]
+        public async Task<IActionResult> UpdateAssetRegionMapping(ModelAssetRegion InpModel)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    var users = await _permission.UpdateAssetRegionMapping(
+                        InpModel.Asset,
+                        InpModel.Region,
+                        InpModel.color,
+                        InpModel.Comments
+                    );
+                    return Ok();
+                }
+                catch (Exception ex)
+                {
+                    return StatusCode(500, ex.Message); // Temp for debugging
+                }
+            }
+            return BadRequest("Invalid data");
+        }
+
+        #endregion
+
     }
 }

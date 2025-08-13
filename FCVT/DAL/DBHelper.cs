@@ -3,6 +3,7 @@ using FCVT.Models;
 using Microsoft.Data.SqlClient;
 using System.Data;
 using System.Net;
+using System.Xml.Linq;
 
 namespace FCVT.DAL
 {
@@ -119,8 +120,6 @@ namespace FCVT.DAL
             }
         }
 
-
-
         public async Task<CommonResponce> DleteUsers(string ID)
         {
             using (var connection = new SqlConnection(_configuration["ConnectionStrings:DefaultConnection"]))
@@ -136,8 +135,6 @@ namespace FCVT.DAL
                 );
             }
         }
-
-
         #endregion
 
         #region Role Management
@@ -239,7 +236,6 @@ namespace FCVT.DAL
             }
         }
 
-
         public async Task<CommonResponce> AddRoleMenu(string RoleID, string MenuIds, string Loginid)
         {
             using (var connection = new SqlConnection(_configuration["ConnectionStrings:DefaultConnection"]))
@@ -325,6 +321,45 @@ namespace FCVT.DAL
                 );
             }
         }
+
+
+        #endregion
+
+
+        #region Asset Region Mapping
+        public async Task<IEnumerable<AssetLst>> GetAssetsLst()
+        {
+            using (var connection = new SqlConnection(_configuration["ConnectionStrings:DefaultConnection"]))
+            {
+                await connection.OpenAsync();
+
+                return await connection.QueryAsync<AssetLst>(
+               "FCVT_GetAssetsLst_SP"
+               , commandType: CommandType.StoredProcedure
+               );
+            }
+        }
+
+
+        public async Task<CommonResponce> UpdateAssetRegionMapping(string Asset, string Region, string AssignedColor, string Comments)
+        {
+            using (var connection = new SqlConnection(_configuration["ConnectionStrings:DefaultConnection"]))
+            {
+                await connection.OpenAsync();
+                var parameters = new DynamicParameters();
+                parameters.Add("@Asset", Asset, DbType.String);
+                parameters.Add("@Region", Region, DbType.String);
+                parameters.Add("@AssignedColor", AssignedColor, DbType.String);
+                parameters.Add("@Comments", Comments, DbType.String);
+                return await connection.QueryFirstOrDefaultAsync<CommonResponce>(
+                    "FCTV_UpdateAssetRegionMapping_SP",
+                    parameters,
+                    commandType: CommandType.StoredProcedure
+                );
+            }
+        }
+
+
 
 
         #endregion

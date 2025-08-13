@@ -95,5 +95,17 @@ namespace FCVT.Repositories
             return result;
         }
 
+        public async Task<IEnumerable<AssetLst>> GetAssets()
+        {
+            var result = await _dbHelper.GetAssetsLst();
+            return result;
+        }
+
+        public async Task<CommonResponce> UpdateAssetRegionMapping(string Asset, string Region, string AssignedColor, string Comments)
+        {
+            var result = await _dbHelper.UpdateAssetRegionMapping(Asset, Region, AssignedColor, Comments);
+            return result;
+        }
+
     }
 }

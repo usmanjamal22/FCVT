@@ -16,7 +16,7 @@ namespace FCVT.Interfaces
 
         Task<CommonResponce> DeleteRoles(string ID);
 
-        Task<IEnumerable<MenuLst>> GetAllMenusLst(string InputType,string RoleId);
+        Task<IEnumerable<MenuLst>> GetAllMenusLst(string InputType, string RoleId);
 
         Task<IEnumerable<RoleTypeLst>> GetAllMenuAssetRolesLst(string Roletype);
 
@@ -29,5 +29,9 @@ namespace FCVT.Interfaces
         Task<CommonResponce> AddUserRoleMapping(string UserID, string RoleMenuID, string RoleAssetID);
 
         Task<IEnumerable<UserRoleMapping>> GetUserRoleMapping(string UserID);
+
+        Task<IEnumerable<AssetLst>> GetAssets();
+
+        Task<CommonResponce> UpdateAssetRegionMapping(string Asset, string Region, string AssignedColor, string Comments);
     }
 }

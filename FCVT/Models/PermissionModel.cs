@@ -83,4 +83,22 @@ namespace FCVT.Models
         public string Id { get; set; }
         public string Name { get; set; }
     }
+
+    public class AssetLst
+    {
+        public string ID { get; set; }
+        public string Asset { get; set; }
+        public string Region { get; set; }
+        public string Color { get; set; }
+
+    }
+
+    public class ModelAssetRegion
+    {
+        public string Asset { get; set; }
+        public string Region { get; set; }
+        public string color { get; set; }
+        public string Comments { get; set; }
+    }
+
 }
