@@ -95,9 +95,9 @@ namespace FCVT.Repositories
             return result;
         }
 
-        public async Task<IEnumerable<AssetLst>> GetAssets()
+        public async Task<IEnumerable<AssetLst>> GetAssets(string UserID)
         {
-            var result = await _dbHelper.GetAssetsLst();
+            var result = await _dbHelper.GetAssetsLst(UserID);
             return result;
         }
 

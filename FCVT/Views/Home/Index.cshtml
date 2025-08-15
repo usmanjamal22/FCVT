@@ -2,102 +2,207 @@
     ViewData["Title"] = "Home Page";
 }
 
-<!-- Custom Styles -->
 <style>
-    html, body {
-        height: 100%;
-        margin: 0;
-        padding: 0;
-    }
-
     #main-container {
         display: flex;
         flex-direction: column;
-        height: 100vh;
+        height: 99vh;
         padding: 0;
         margin: 0;
     }
-
-    #controls {
-        padding: 10px;
-        background-color: #f8f9fa;
-        border-bottom: 1px solid #ddd;
-    }
-
     #map {
         flex: 1;
         width: 100%;
     }
 </style>
 
-<!-- Controls and Map Layout -->
 <div class="container-fluid" id="main-container">
-    <!-- Controls: Horizontal layout using Bootstrap -->
-    <div id="controls" class="d-flex flex-wrap align-items-center gap-3">
-        <select class="form-select w-auto">
-            <option selected>Select Assets</option>
-            <option value="-1">SELECT All</option>
-            <option value="2">BBX-727</option>
-            <option value="3">BAQ-321</option>
-            <option value="4">BHQ-123</option>
-            <option value="5">BPY-9812</option>
-            <option value="6">AQE-227</option>
-            <option value="7">SEW-777</option>
-        </select>
+    <!-- Controls -->
+    <div id="controls"
+         class="row g-2 align-items-center p-2 bg-light border rounded shadow-sm">
 
-        <div class="form-check">
+        <!-- Asset Select -->
+        <div class="col-auto">
+            <select id="assetSelect" name="Asset"
+                    class="form-select form-select-sm">
+                <option value="">-- Select Asset --</option>
+            </select>
+        </div>
+
+        <!-- Live View -->
+        <div class="col-auto form-check">
             <input class="form-check-input" type="checkbox" id="ChkBoxLiveMonitering">
             <label class="form-check-label" for="ChkBoxLiveMonitering">
                 Live View
             </label>
         </div>
 
-        <div class="form-check">
+        <!-- View Alarms -->
+        <div class="col-auto form-check">
             <input class="form-check-input" type="checkbox" id="ChkViewAlarms">
             <label class="form-check-label" for="ChkViewAlarms">
                 View Alarms
             </label>
         </div>
 
-        <button class="btn btn-primary">Apply</button>
+        <!-- Apply Button -->
+        <div class="col-auto">
+            <button class="btn btn-primary btn-sm">Apply</button>
+        </div>
     </div>
 
     <!-- Map container -->
-    <div id="map"></div>
+    <div id="map" class="mt-2"></div>
 </div>
+
 
 <!-- Leaflet.js CSS & JS (Only for this page) -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://api1.tplmaps.com/js-api-v2/assets/tplmaps.js?api_key=$2a$10$RNdeMDBGrOwbnh81N3RzTDGUxKVId3cLscU3V3HkGdRLKhwI0oOQe"></script>
 <script>
-    // document.addEventListener('DOMContentLoaded', function () {
-    //     var map = L.map('map').setView([25.276987, 55.296249], 12); // Example location
+     var userMap;
+     var ArrayOfStoreLastLocation = [];
+     var ArrayOfmarker=[];
+     var ArrayOfmarkerSimple=[];
+     var ContactType;
+     var FuelLastStatus=0;
+     var BatteryVoltageLastStatus=0;
+     var MapRefreshRate = 5000; // refresh every 5 seconds
 
-    //     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    //         maxZoom: 19
-    //     }).addTo(map);
-    // });
+     window.onload = function () {
+         var mapOption = {
+             lat: 30.37532100,
+             lng: 69.34511599,
+             zoom: 6,
+             minZoom: 0,
+             maxZoom: 20,
+             divID: "map",
+             gestureHandling: false
+         };
+         userMap = TPLMaps.map.initMap(mapOption);
 
-    var userMap;
-    var ArrayOfStoreLastLocation = [];
-    var ArrayOfmarker=[];
-    var ArrayOfmarkerSimple=[];
-    var ContactType;
-    var FuelLastStatus=0;
-    var BatteryVoltageLastStatus=0;
-    window.onload = function () {
-        var mapOption = {
-            lat: 30.37532100,
-            lng: 69.34511599,
-            zoom: 6,
-            minZoom: 0,
-            maxZoom: 20,
-            divID: "map",
-            gestureHandling: false
+         GetLL();
+
+     }; //On Load end
+
+
+    function GetLL() {
+        $.ajax({
+            url: '@Url.Action("GetLL", "Home")',
+            method: 'GET',
+            success: function (data) {
+                console.log(data);
+                  if (data != null) {
+                    ClearMarkers(ArrayOfmarker);
+                    for (var i = 0; i < data.length; i++) {
+                        ArrayOfStoreLastLocation[i] = { "RegNo": data[i].asset.toUpperCase(), "Latitude": data[i].lat, "Longitude": data[i].lng };
+                        addPoint(data[i].lat
+                            ,data[i].lng
+                            ,data[i].asset,
+                            data[i].statusText.toLowerCase()
+                            ,"0"
+                            ,data[i].gpsdateTime,
+                            data[i].region,
+                            data[i].location,
+                            data[i].speed,
+                            data[i].color,
+                        );
+                    }
+            }
+            },
+            error: function (xhr, status, error) {
+                console.error("Error: ", error);
+            },
+            complete: function () {
+                setTimeout(GetLL, 30000);
+            }
+        });
+    }
+
+    function addPoint(Latitude, Longitude, Asset, StatusText, Direction, LastReportingDateTime, Region, Location, Speed,Color) {
+        var basePath = '@(Url.Content("~/images/"))';
+        var colorMap = {
+            'Red#FF0000': 'path-red.png',
+            'Maroon#800000': 'path-brown.png',
+            'Yellow#FFFF00': 'path-yellow.png',
+            'Olive#808000': 'path-olive.png',
+            'Green#008000': 'path-green.png'
         };
-        userMap = TPLMaps.map.initMap(mapOption);
-    }; //On Load end
+        var ImagePath = basePath + (colorMap[Color] || 'path-blue.png');
 
+        var StrInfoWindow = createInfo(Asset, LastReportingDateTime, Location, StatusText);
+        var option = {
+             lat: Latitude,
+             lng: Longitude,
+             icon: ImagePath,
+             iconWidth: 18,
+             iconHeight: 18,
+             anchorWidth: 6,
+             anchorHeight: 2,
+             map: userMap
+         };
+            
+        marker = TPLMaps.overlays.point(option);
+        marker.Regno = Asset;
+        ArrayOfmarker.push(marker);
+        //userMap.setView(marker.getLatLng());
+        var options = {
+            map: userMap,
+            geomObject: marker
+        }
+        TPLMaps.overlays.addToMap(options);
+        var options = {
+            geomObject: marker,
+            label: StrInfoWindow,
+            sticky: false
+        }
+        TPLMaps.overlays.addInfoPopUp(options);
+        var StrMarkerWithLabel = '<span style="font-size: 12px;" >' + Asset + '</span>';
 
+        var options = {
+                geomObject: marker,
+                label: StrMarkerWithLabel,
+                sticky: false,
+                opacity: 0.9,
+                //direction: 'auto',
+                permanent: true
+        }
+        TPLMaps.overlays.addLabel(options);
+    }//end add point
+
+      function createInfo(Asset, LastReportingDateTime, Location, StatusText) {
+        return '<div  style="font-size: 12px;"><h4>' + Asset + '</h4><span><b>Location:</b> ' + Location + '</span><span><b>Last Reporting DateTime:</b></span>' + LastReportingDateTime + '</br><span ><b>Status:</b></span>' + StatusText + '</div>';
+    }
+
+    function ClearMarkers(ArrayOfmarker) {
+        if(ArrayOfmarker.length > 0){
+            var removeMarkerOptions = {
+                map: userMap,
+                markerArray: ArrayOfmarker
+            }
+            TPLMaps.overlays.removeMarkersFromMap(removeMarkerOptions);
+            ArrayOfmarker.length = 0;
+        }
+    }
 </script>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#assetSelect').select2({
+                placeholder: "Select an Asset",
+                allowClear: true,
+                width: '100%'
+            });
+
+            $.get('/Permissions/GetAsset', {} , function (data) {
+                var $select = $('#assetSelect');
+                data.data.forEach(function (u) {
+                    $select.append('<option value="' + u.asset + '">' + u.asset + '</option>');
+                });
+                $select.trigger('change.select2');
+            });
+        });
+    </script>
+}

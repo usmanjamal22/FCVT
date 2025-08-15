@@ -30,7 +30,7 @@ namespace FCVT.Interfaces
 
         Task<IEnumerable<UserRoleMapping>> GetUserRoleMapping(string UserID);
 
-        Task<IEnumerable<AssetLst>> GetAssets();
+        Task<IEnumerable<AssetLst>> GetAssets(string UserID);
 
         Task<CommonResponce> UpdateAssetRegionMapping(string Asset, string Region, string AssignedColor, string Comments);
     }

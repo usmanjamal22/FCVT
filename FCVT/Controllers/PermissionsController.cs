@@ -217,7 +217,8 @@ namespace FCVT.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAsset()
         {
-            var result = await _permission.GetAssets();
+            var UserID = User.FindFirst("UserID")?.Value;
+            var result = await _permission.GetAssets(UserID);
             return Json(new { data = result });
         }
 

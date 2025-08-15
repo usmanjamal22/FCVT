@@ -23,7 +23,7 @@ builder.Services.AddScoped<DBHelper>();
 builder.Services.AddScoped<IAuthen, Authen>();
 builder.Services.AddScoped<IMenuService, MenuService>();
 builder.Services.AddScoped<IPermissionsManagement, PermissionsManagement>();
-
+builder.Services.AddScoped<IVehicleTracking, VehicleTracking>();
 
 var app = builder.Build();
 

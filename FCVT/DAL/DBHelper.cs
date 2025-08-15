@@ -325,17 +325,20 @@ namespace FCVT.DAL
 
         #endregion
 
-
         #region Asset Region Mapping
-        public async Task<IEnumerable<AssetLst>> GetAssetsLst()
+        public async Task<IEnumerable<AssetLst>> GetAssetsLst(string UserID)
         {
             using (var connection = new SqlConnection(_configuration["ConnectionStrings:DefaultConnection"]))
             {
                 await connection.OpenAsync();
 
+                var parameters = new DynamicParameters();
+                parameters.Add("@UserID", UserID, DbType.String);
+
                 return await connection.QueryAsync<AssetLst>(
-               "FCVT_GetAssetsLst_SP"
-               , commandType: CommandType.StoredProcedure
+                "FCVT_GetAssetsLst_SP",
+                 parameters,
+                commandType: CommandType.StoredProcedure
                );
             }
         }
@@ -364,6 +367,25 @@ namespace FCVT.DAL
 
         #endregion
 
+        #endregion
+
+        #region LL , Replay 
+        public async Task<IEnumerable<VTLL>> GetVTLL(string UserID)
+        {
+            using (var connection = new SqlConnection(_configuration["ConnectionStrings:DefaultConnection"]))
+            {
+                await connection.OpenAsync();
+
+                var parameters = new DynamicParameters();
+                parameters.Add("@UserID", UserID, DbType.String);
+
+                return await connection.QueryAsync<VTLL>(
+                    "FCVT_GetAssetsLL_SP"
+                    , parameters
+                    , commandType: CommandType.StoredProcedure
+                    );
+            }
+        }
         #endregion
 
         #region EV Battery Asset
