@@ -15,7 +15,8 @@
               $('#menuTree').jstree("destroy");
               if (RoleId) {
                   // First: fetch data manually to debug
-                  $.getJSON('/Permissions/GetAllMenuLst', { RoleId: RoleId })
+                  //'/Permissions/GetAllMenuLst'
+                  $.getJSON('@Url.Action("GetAllMenuLst", "Permissions")', { RoleId: RoleId })
                       .done(function (data) {
                           $('#menuTree').jstree({
                               'core': {
@@ -32,28 +33,47 @@
 
 
           // Load Vehicle Tree on role select
-          $('#vehicleRoleSelect').change(function () {
-              var RoleId = $(this).val();
-              $('#vehicleTree').jstree("destroy");
-              if (RoleId) {
-                  $('#vehicleTree').jstree({
-                      'core': {
-                          'data': {
-                              'url': '/Permissions/GetVehicleByRole?RoleId=' + RoleId,
-                              'dataType': 'json'
-                          }
-                      },
-                      'plugins': ["checkbox"]
-                  });
-              }
-          });
+          // $('#vehicleRoleSelect').change(function () {
+          //     var RoleId = $(this).val();
+          //     $('#vehicleTree').jstree("destroy");
+          //     if (RoleId) {
+          //         $('#vehicleTree').jstree({
+          //             'core': {
+          //                 'data': {
+          //                     'url': '/Permissions/GetVehicleByRole?RoleId=' + RoleId,
+          //                     'dataType': 'json'
+          //                 }
+          //             },
+          //             'plugins': ["checkbox"]
+          //         });
+          //     }
+          // });
+
+          // Load Vehicle Tree on role select
+            $('#vehicleRoleSelect').change(function () {
+                var RoleId = $(this).val();
+                $('#vehicleTree').jstree("destroy");
+                var getVehicleByRoleBaseUrl = '@Url.Action("GetVehicleByRole", "Permissions")';
+                if (RoleId) {
+                    $('#vehicleTree').jstree({
+                        'core': {
+                            'data': {
+                                'url': getVehicleByRoleBaseUrl + '?RoleId=' + RoleId,
+                                'dataType': 'json'
+                            }
+                        },
+                        'plugins': ["checkbox"]
+                    });
+                }
+            });
+
 
           // Save Menu Permissions
         $('#saveMenu').click(function () {
             var roleId = $('#menuRoleSelect').val();
             var selectedIds = $('#menuTree').jstree("get_checked");
             $.ajax({
-                url: '/Permissions/AddRoleMenu',
+                url:'@Url.Action("AddRoleMenu", "Permissions")', // '/Permissions/AddRoleMenu',
                 type: 'POST',
                 traditional: true, // <-- This makes arrays bind correctly in MVC
                 data: {
@@ -77,12 +97,8 @@
                 return node.text; // "text" contains the label
                 });
 
-            console.log(selectedTexts); // array of names
-
-            alert(selectedTexts);
-
             $.ajax({
-                url: '/Permissions/AddRoleAssets',
+                url:'@Url.Action("AddRoleAssets", "Permissions")', // '/Permissions/AddRoleAssets',
                 type: 'POST',
                 traditional: true,
                 data: {
@@ -96,7 +112,8 @@
           });
 
           function LoadRolesOfMenuAsset(roleType) {
-          $.get('/Permissions/GetAllMenuAssetRolesLst', { roleType: roleType }, function (data) {
+              //'/Permissions/GetAllMenuAssetRolesLst'
+          $.get('@Url.Action("GetAllMenuAssetRolesLst", "Permissions")', { roleType: roleType }, function (data) {
               if(roleType == 'Menu'){
               var $select = $('#menuRoleSelect');
               $select.empty();

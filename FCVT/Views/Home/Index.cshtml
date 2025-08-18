@@ -172,7 +172,7 @@
     }//end add point
 
       function createInfo(Asset, LastReportingDateTime, Location, StatusText) {
-        return '<div  style="font-size: 12px;"><h4>' + Asset + '</h4><span><b>Location:</b> ' + Location + '</span><span><b>Last Reporting DateTime:</b></span>' + LastReportingDateTime + '</br><span ><b>Status:</b></span>' + StatusText + '</div>';
+        return '<div  style="font-size: 12px;"><h4>' + Asset + '</h4><span><b>Location:</b> ' + Location + '</span></br><span><b>Reporting:</b></span>' + LastReportingDateTime + '</br><span ><b>Status:</b></span>' + StatusText + '</div>';
     }
 
     function ClearMarkers(ArrayOfmarker) {
@@ -185,6 +185,19 @@
             ArrayOfmarker.length = 0;
         }
     }
+
+       const SetZoomCenter = function ZoomCenter(Latitude, Longitude, Zoom) {
+        if (Zoom == undefined) {
+            Zoom = 12;
+        }
+        var options = {
+            zoom: Zoom,
+            lat: Latitude,
+            lng: Longitude,
+            map: userMap
+        };
+        TPLMaps.map.setCenterZoom(options);
+    }
 </script>
 
 @section Scripts {
@@ -195,14 +208,21 @@
                 allowClear: true,
                 width: '100%'
             });
-
-            $.get('/Permissions/GetAsset', {} , function (data) {
+            $.get('@Url.Action("GetAsset", "Permissions")', {} , function (data) {
                 var $select = $('#assetSelect');
                 data.data.forEach(function (u) {
                     $select.append('<option value="' + u.asset + '">' + u.asset + '</option>');
                 });
                 $select.trigger('change.select2');
             });
+
+              $('#assetSelect').change(function () {
+               var AssetId = $(this).val();
+               var obj=  ArrayOfStoreLastLocation.find(x => x.RegNo === AssetId);
+               if(obj!=null && obj.RegNo != ""){
+                    SetZoomCenter(obj.Latitude, obj.Longitude,20);
+                }
+               });
         });
     </script>
 }

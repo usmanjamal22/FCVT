@@ -42,8 +42,8 @@
                 width: '100%'
             });
 
-            // Load Users
-            $.get('/Permissions/GetUserRoleLst', { InputType: 'user' } , function (data) {
+            // Load Users '/Permissions/GetUserRoleLst'
+            $.get('@Url.Action("GetUserRoleLst", "Permissions")', { InputType: 'user' } , function (data) {
                 var $select = $('#userSelect');
                 data.forEach(function (u) {
                     $select.append('<option value="' + u.id + '">' + u.name + '</option>');
@@ -51,8 +51,8 @@
                 $select.trigger('change.select2');
             });
 
-            // Load Menu Roles
-            $.get('/Permissions/GetUserRoleLst', { InputType: 'usermenu' }, function (data) {
+            // Load Menu Roles '/Permissions/GetUserRoleLst'
+            $.get('@Url.Action("GetUserRoleLst", "Permissions")', { InputType: 'usermenu' }, function (data) {
                 var $select = $('#menuRoleSelect');
                 data.forEach(function (item) {
                     $select.append('<option value="' + item.id + '">' + item.name + '</option>');
@@ -63,8 +63,8 @@
             $('#userSelect').change(function () {
                 var userId = $(this).val();
                 if (!userId) return;
-
-                $.get('/Permissions/GetUserRoleMapping', { userID: userId }, function (data) {
+                //'/Permissions/GetUserRoleMapping'
+                $.get('@Url.Action("GetUserRoleMapping", "Permissions")', { userID: userId }, function (data) {
                     if(data != null && data.length != 0){
                     var menuRoleId = data
                             .filter(r => r.roleType === "Menu")
@@ -94,8 +94,8 @@
                     }
                 });
             });
-            // Load Asset Roles
-            $.get('/Permissions/GetUserRoleLst', { InputType: 'userAssets' }, function (data) {
+            // Load Asset Roles '/Permissions/GetUserRoleLst'
+            $.get('@Url.Action("GetUserRoleLst", "Permissions")', { InputType: 'userAssets' }, function (data) {
                 var $select = $('#assetRoleSelect');
                 data.forEach(function (item) {
                     $select.append('<option value="' + item.id + '">' + item.name + '</option>');
@@ -113,8 +113,8 @@
                     alert("Please select all fields before saving.");
                     return;
                 }
-
-                $.post('/Permissions/AssignRolesToUser', {
+                //'/Permissions/AssignRolesToUser'
+                $.post('@Url.Action("AssignRolesToUser", "Permissions")', {
                     userId: userId,
                     menuRoleId: menuRoleId,
                     assetRoleId: assetRoleId

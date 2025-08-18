@@ -47,6 +47,7 @@
         <option value="Quetta to Chaman">Quetta to Chaman</option>
         <option value="Quetta to Kech">Quetta to Kech</option>
         <option value="Quetta to Gwadar">Quetta to Gwadar</option>
+        <option value="Quetta to Karachi">Quetta to Karachi</option>
     </select>
 </div>
 
@@ -85,8 +86,8 @@
                 dropdownParent: $('#addUserModal') 
             });
 
-            // Load Users
-            $.get('/Permissions/GetAsset', { InputType: 'user' } , function (data) {
+            // Load Users '/Permissions/GetAsset'
+            $.get( '@Url.Action("GetAsset", "Permissions")', { InputType: 'user' } , function (data) {
                 var $select = $('#userSelect');
                 data.data.forEach(function (u) {
                     $select.append('<option value="' + u.asset + '">' + u.asset + '</option>');
@@ -110,7 +111,7 @@
 
             $('#usersTable').DataTable({
                 "ajax": {
-                    "url": "/Permissions/GetAsset",
+                    "url": '@Url.Action("GetAsset", "Permissions")',// "/Permissions/GetAsset",
                     "type": "GET",
                     "datatype": "json"
                 },
@@ -129,7 +130,7 @@
            $('#addUserForm').on('submit', function (e) {
                 e.preventDefault();
                 $.ajax({
-                    url: '/Permissions/UpdateAssetRegionMapping',
+                    url: '@Url.Action("UpdateAssetRegionMapping", "Permissions")',//'/Permissions/UpdateAssetRegionMapping',
                     type: 'POST',
                     data: $(this).serialize(),
                     success: function (response) {

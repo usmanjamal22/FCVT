@@ -92,7 +92,7 @@
         $(document).ready(function () {
             $('#usersTable').DataTable({
                 "ajax": {
-                    "url": "/Permissions/GetUsers",
+                    "url":  '@Url.Action("GetUsers", "Permissions")',//       "/Permissions/GetUsers",
                     "type": "GET",
                     "datatype": "json"
                 },
@@ -134,7 +134,7 @@
                 e.preventDefault();
                 var formData = $(this).serialize();
                 $.ajax({
-                    url: '/Permissions/AddUser',
+                    url: '@Url.Action("AddUser", "Permissions")',// '/Permissions/AddUser',
                     type: 'POST',
                     data: formData,
                     success: function (response) {
@@ -177,7 +177,7 @@
            var userName=$(this).data('username');
             if (confirm(`Are you sure you want to delete user '${userName}'?`)) {
                 $.ajax({
-                    url: '/Permissions/DeleteUser',
+                    url:'@Url.Action("DeleteUser", "Permissions")',// '/Permissions/DeleteUser',
                     type: 'POST',
                     data: { id: userId },
                     success: function (response) {
@@ -189,8 +189,6 @@
                 });
             }
         });
-
-
 
         });
     </script>
