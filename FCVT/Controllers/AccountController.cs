@@ -53,7 +53,7 @@ namespace FCVT.Controllers
             }
 
             var passwordHasher = new PasswordHasher<string>();
-            var result = passwordHasher.VerifyHashedPassword(null, user.Password, model.PasswordH);
+            var result = passwordHasher.VerifyHashedPassword(null, user.Password, model.Password);
 
             if (result == PasswordVerificationResult.Success)
             {

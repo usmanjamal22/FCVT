@@ -9,6 +9,6 @@ namespace FCVT.Models
 
         [Required]
         [DataType(DataType.Password)]
-        public string PasswordH { get; set; }
+        public string Password { get; set; }
     }
 }

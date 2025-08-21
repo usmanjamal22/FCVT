@@ -44,7 +44,7 @@ namespace FCVT.Controllers
             if (ModelState.IsValid)
             {
                 var passwordHasher = new PasswordHasher<string>();
-                string hashedPassword = passwordHasher.HashPassword(null, "NewPasswordHashed@01");
+                string hashedPassword = passwordHasher.HashPassword(null, model.Password);
                 var users = await _permission.AddUsers(model.FirstName, model.LastName, model.UserName, model.NIC, model.Email
                     , model.PhoneNo, model.Address, hashedPassword, "User");
                 return Ok();
