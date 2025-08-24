@@ -1,4 +1,5 @@
 ﻿using System.Drawing;
+using System.Reflection;
 
 namespace FCVT.Models
 {
@@ -18,5 +19,31 @@ namespace FCVT.Models
         public string Speed { get; set; }
         public string Location { get; set; }
         public string AddOn { get; set; }
+    }
+
+    public class VTBmr
+    {
+        public string Asset { get; set; }
+        public string GpsDateTime { get; set; }
+        public string Longitude { get; set; }
+        public string Latitude { get; set; }
+        public string StatusText { get; set; }
+        public string Direction { get; set; }
+        public string Mileage { get; set; }
+        public string Speed { get; set; }
+        public string Location { get; set; }
+    }
+
+
+
+    public class VTAlarms
+    {
+        public string Asset { get; set; }
+        public string DeviceID { get; set; }
+        public string GpsDateTime { get; set; }
+        public string Alarm { get; set; }
+        public string Location { get; set; }
+        public string Latitude { get; set; }
+        public string Longitude { get; set; }
     }
 }

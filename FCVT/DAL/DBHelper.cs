@@ -369,7 +369,7 @@ namespace FCVT.DAL
 
         #endregion
 
-        #region LL , Replay 
+        #region LL , Bmr , Replay ,Alarms
         public async Task<IEnumerable<VTLL>> GetVTLL(string UserID)
         {
             using (var connection = new SqlConnection(_configuration["ConnectionStrings:DefaultConnection"]))
@@ -386,6 +386,43 @@ namespace FCVT.DAL
                     );
             }
         }
+
+        public async Task<IEnumerable<VTBmr>> GetBmr(string Asset, string SDT, string EDT)
+        {
+            using (var connection = new SqlConnection(_configuration["ConnectionStrings:DefaultConnection"]))
+            {
+                await connection.OpenAsync();
+
+                var parameters = new DynamicParameters();
+                parameters.Add("@Asset", Asset, DbType.String);
+                parameters.Add("@SDT", SDT, DbType.String);
+                parameters.Add("@EDT", EDT, DbType.String);
+
+                return await connection.QueryAsync<VTBmr>(
+                    "FCVT_BMR_SP"
+                    , parameters
+                    , commandType: CommandType.StoredProcedure
+                    );
+            }
+        }
+
+        public async Task<IEnumerable<VTAlarms>> GetVTAlarms(string UserID)
+        {
+            using (var connection = new SqlConnection(_configuration["ConnectionStrings:DefaultConnection"]))
+            {
+                await connection.OpenAsync();
+
+                var parameters = new DynamicParameters();
+                parameters.Add("@UserID", UserID, DbType.String);
+
+                return await connection.QueryAsync<VTAlarms>(
+                    "FCVT_GetAssetsAlarm_SP"
+                    , parameters
+                    , commandType: CommandType.StoredProcedure
+                    );
+            }
+        }
+        
         #endregion
 
         #region EV Battery Asset

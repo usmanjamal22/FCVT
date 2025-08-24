@@ -20,6 +20,7 @@ namespace FCVT.Controllers
             _vehicleTracking = vehicleTracking;
         }
 
+
         public IActionResult Index()
         {
             return View();
@@ -32,6 +33,21 @@ namespace FCVT.Controllers
             var Lst = await _vehicleTracking.GetVTLL(UserID);
             return Json(Lst);
         }
+
+        [HttpGet]
+        public IActionResult GetReplayData(string asset, DateTime startTime, DateTime endTime)
+        {
+            // Example data — replace with real logic
+            var data = new List<object> {
+        new { lat = 30.5, lng = 70.2, time = "2025-08-22T10:00:00" },
+        new { lat = 30.6, lng = 70.3, time = "2025-08-22T10:10:00" },
+        new { lat = 30.7, lng = 70.4, time = "2025-08-22T10:20:00" },
+    };
+
+            return Json(data);
+        }
+
+      
 
         public IActionResult Privacy()
         {

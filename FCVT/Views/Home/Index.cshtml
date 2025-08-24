@@ -34,11 +34,15 @@
             </div>
 
             <div class="col-auto">
-                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#divMapReplayModal">Replay</button>
+                <button class="btn btn-primary" id="btnOpenReplay">Replay</button>
             </div>
 
             <div class="col-auto">
-                <button class="btn btn-primary btn-sm">Alarms</button>
+                <button class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#viewAlarmModal">
+                    <i class="bi bi-plus-circle"></i> Alarms
+                </button>
+
+
             </div>
         </div>
     </div>
@@ -46,37 +50,72 @@
 </div>
 
 
-<!-- Add Map Replay Modal -->
+<!--  Map Replay Modal -->
 <div class="modal fade" id="divMapReplayModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <form id="addUserForm">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="addUserModalLabel">View Replay</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
+            <div class="modal-header">
+                <h5 class="modal-title" id="addUserModalLabel">View Replay</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
 
-                <div class="modal-body">
-                    <div class="row g-3">
-                        <div class="col-md-5">
-                            <label for="startDateTime" class="form-label">Start DateTime</label>
-                            <input type="text" id="startDateTime" class="form-control datetimepicker">
-                        </div>
-                        <div class="col-md-5">
-                            <label for="endDateTime" class="form-label">End DateTime</label>
-                            <input type="text" id="endDateTime" class="form-control datetimepicker">
-                        </div>
-                        <div class="col-md-2">
-                            <label for="btnReplayView" class="form-label">View</label>
-                            <input type="button" id="btnReplayView" value="View Replays" />
-                        </div>
+            <div class="modal-body">
+                <div class="row g-3">
+                    <div class="col-md-5">
+                        <label for="startDateTime" class="form-label">Start DateTime</label>
+                        <input type="text" id="startDateTime" class="form-control datetimepicker">
                     </div>
-                    <div id="mapReplayModal" class="mt-3" style="height: 400px;"></div>
+                    <div class="col-md-5">
+                        <label for="endDateTime" class="form-label">End DateTime</label>
+                        <input type="text" id="endDateTime" class="form-control datetimepicker">
+                    </div>
+
+                    <div class="col-md-2 mt-4">
+                        <label for="btnReplayView" class="form-label">View</label>
+                        <input type="button" id="btnReplayView" value="View Replays" class="btn btn-primary w-100" />
+                    </div>
+
+
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <div id="mapReplayModal" class="mt-3" style="height: 400px;"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- View Alarms Modal -->
+<div class="modal fade" id="viewAlarmModal" tabindex="-1" aria-labelledby="viewAlarmModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="viewAlarmModalLabel">View Alarms</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row g-3">
+                    <div class="col-md-12">
+                        <table id="alarmsTable" class="display" style="width:100%">
+                            <thead>
+                                <tr>
+                                    <th>Asset</th>
+                                    <th>GpsDateTime</th>
+                                    <th>Alarm</th>
+                                    <th>Location</th>
+                                    <th>Latitude</th>
+                                    <th>Longitude</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
                 </div>
-            </form>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-success">Save</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            </div>
         </div>
     </div>
 </div>
@@ -99,6 +138,11 @@
     var BatteryVoltageLastStatus = 0;
     var MapRefreshRate = 5000; // refresh every 5 seconds
 
+    let replayMap;
+    let replayMarkers = [];
+    var ArrayOfmarker = [];
+    var PolygonsArray = [];
+
     window.onload = function () {
         var mapOption = {
             lat: 30.37532100,
@@ -112,6 +156,115 @@
         userMap = TPLMaps.map.initMap(mapOption);
 
         GetLL();
+
+        $('#btnReplayView').on('click', function () {
+            const asset = $('#assetSelect').val();
+            const start = $('#startDateTime').val();
+            const end = $('#endDateTime').val();
+            var ArrayLatLng = [];
+            if (!asset) {
+                alert("Please select an asset.");
+                return;
+            }
+
+            if (!start || !end) {
+                alert("Please select both start and end datetime.");
+                return;
+            }
+
+            const startDate = new Date(start);
+            const endDate = new Date(end);
+            if (startDate >= endDate) {
+                alert("Start datetime must be before end datetime.");
+                return;
+            }
+
+            $.get('@Url.Action("GetReplayData", "Tracking")', {
+                asset: asset,
+                startTime: start,
+                endTime: end
+            }, function (replayData) {
+                if (!replayData || replayData.length === 0) {
+                    alert("No replay data found for selected range.");
+                    return;
+                }
+                else {
+                    ; debugger
+                    // alert(replayData);
+                    // alert(userMap);
+                    //alert(replayMap);
+                    //ClearMarkers(ArrayOfmarker);
+                    ClearPolygon(PolygonsArray);
+                    for (var i = 0; i < replayData.length; i++) {
+                        ArrayLatLng[i] = { "lat": replayData[i].latitude, "lng": replayData[i].longitude, "label": replayData[i].statusText };
+
+                    }
+
+                    // const replayData1 = [
+                    //     { lat: 30.3795, lng: 67.7258, label: 'near korangi' },
+                    //     { lat: 30.3792, lng: 67.7255, label: 'near korangi' },
+                    //     { lat: 30.3509, lng: 67.7421, label: 'near korangi' },
+                    //     { lat: 30.3507, lng: 67.7421, label: 'near korangi' },
+                    //     { lat: 30.3508, lng: 67.7422, label: 'near korangi' },
+                    //     { lat: 30.3798, lng: 67.7257, label: 'near korangi' },
+                    //     { lat: 30.3797, lng: 67.7257, label: 'near korangi' },
+                    // ];
+
+                    addLine(ArrayLatLng, 'Green', '', asset);
+                }
+            })
+                .fail(function () {
+                    alert("Failed to load replay data.");
+                });
+        });
+
+        function addLine(Area, Color, InfoWindowText, AssetNo) {
+            ; debugger
+            var pointList = Area;// JSON.parse(Str1);
+            var option = {
+                style: {
+                    weight: 3,
+                    opacity: 0.7,
+                    color: Color
+                },
+                points: pointList,
+                map: userMap
+            };
+            line = TPLMaps.overlays.line(option);
+            PolygonsArray.push(line);
+            userMap.fitBounds(line.getBounds());
+            TPLMaps.overlays.addToMap({
+                geomObject: line,
+                map: userMap
+            });
+            var options = {
+                geomObject: line,
+                label: AssetNo
+            }
+            TPLMaps.overlays.addInfoPopUp(options);
+            var options = {
+                geomObject: line,
+                label: InfoWindowText,
+                sticky: true,
+                opacity: 0.9,
+                direction: 'auto',
+                permanent: false,
+            }
+            TPLMaps.overlays.addLabel(options);
+        } //end addLine
+
+        function ClearPolygon(PolygonsArray) {
+            if (PolygonsArray.length > 0) {
+                var removePolygonOptions = {
+                    map: userMap,
+                    polygonArray: PolygonsArray
+                }
+                TPLMaps.overlays.removePolygonFromMap(removePolygonOptions);
+                PolygonsArray = [];
+            }
+            else
+                PolygonsArray = [];
+        }
 
     }; //On Load end
 
@@ -204,17 +357,6 @@
         return '<div  style="font-size: 12px;"><h4>' + Asset + '</h4><span><b>Location:</b> ' + Location + '</span></br><span><b>Reporting:</b></span>' + LastReportingDateTime + '</br><span ><b>Status:</b></span>' + StatusText + '</div>';
     }
 
-    function ClearMarkers(ArrayOfmarker) {
-        if (ArrayOfmarker.length > 0) {
-            var removeMarkerOptions = {
-                map: userMap,
-                markerArray: ArrayOfmarker
-            }
-            TPLMaps.overlays.removeMarkersFromMap(removeMarkerOptions);
-            ArrayOfmarker.length = 0;
-        }
-    }
-
     const SetZoomCenter = function ZoomCenter(Latitude, Longitude, Zoom) {
         if (Zoom == undefined) {
             Zoom = 12;
@@ -227,6 +369,18 @@
         };
         TPLMaps.map.setCenterZoom(options);
     }
+
+    function ClearMarkers(ArrayOfmarker) {
+        if (ArrayOfmarker.length > 0) {
+            var removeMarkerOptions = {
+                map: userMap,
+                markerArray: ArrayOfmarker
+            }
+            TPLMaps.overlays.removeMarkersFromMap(removeMarkerOptions);
+            ArrayOfmarker.length = 0;
+        }
+    }
+
 </script>
 
 @section Scripts {
@@ -252,55 +406,62 @@
                     SetZoomCenter(obj.Latitude, obj.Longitude, 20);
                 }
             });
-        });
-    </script>
+
+            $('#btnOpenReplay').on('click', function () {
+                const selectedAsset = $('#assetSelect').val();
+                if (!selectedAsset) {
+                    alert('Please select an asset before opening the replay.');
+                    return;
+                }
+                const modal = new bootstrap.Modal(document.getElementById('divMapReplayModal'));
+                modal.show();
+            });
 
 
-    <script>
-        let replayMap;
-        let replayMarkers = [];
 
-        flatpickr(".datetimepicker", {
-            enableTime: true,
-            dateFormat: "Y-m-d H:i",
-        });
+            flatpickr(".datetimepicker", {
+                enableTime: true,
+                dateFormat: "Y-m-d H:i",
+            });
 
-        // Show Modal => Initialize Map
-        $('#divMapReplayModal').on('shown.bs.modal', function () {
-            if (!replayMap) {
-                const options = {
-                    lat: 30.3753,
-                    lng: 69.3451,
-                    zoom: 6,
-                    minZoom: 0,
-                    maxZoom: 20,
-                    divID: "mapReplayModal",
-                    gestureHandling: false
-                };
-                replayMap = TPLMaps.map.initMap(options);
-            } else {
-                replayMap.invalidateSize();
-            }
-        });
+            $('#divMapReplayModal').on('shown.bs.modal', function () {
+                // if (!replayMap) {
+                //     const options = {
+                //         lat: 30.3753,
+                //         lng: 69.3451,
+                //         zoom: 6,
+                //         minZoom: 0,
+                //         maxZoom: 20,
+                //         divID: "mapReplayModal",
+                //         gestureHandling: false
+                //     };
+                //     replayMap = TPLMaps.map.initMap(options);
+                // } else {
+                //     replayMap.invalidateSize();
+                // }
+            });
 
-        // On form submit
-        $('#addUserForm').on('submit', function (e) {
-            e.preventDefault();
+            $('#viewAlarmModal').on('shown.bs.modal', function () {
+                if (!$.fn.DataTable.isDataTable('#alarmsTable')) {
+                    $('#alarmsTable').DataTable({
+                        "ajax": {
+                            "url": '@Url.Action("GetVTAlarms", "Tracking")',//       "/Permissions/GetUsers",
+                            "type": "GET",
+                            "datatype": "json"
+                        },
+                        columns: [
+                            { data: 'asset' },
+                            { data: 'gpsDateTime' },
+                            { data: 'alarm' },
+                            { data: 'location' },
+                            { data: 'latitude' },
+                            { data: 'longitude' }
+                        ]
+                    });
+                }
+            });
 
-            const start = new Date($('#startDateTime').val());
-            const end = new Date($('#endDateTime').val());
 
-            if (isNaN(start) || isNaN(end)) {
-                alert('Please select valid start and end dates.');
-                return;
-            }
-
-            // 🔁 MOCKED SAMPLE REPLAY DATA - Replace this with actual AJAX call
-            const replayData = [
-                { lat: 30.5, lng: 70.2, time: '2025-08-22T10:00:00' },
-                { lat: 30.6, lng: 70.3, time: '2025-08-22T10:15:00' },
-                { lat: 30.7, lng: 70.4, time: '2025-08-22T10:30:00' },
-            ];
         });
     </script>
 
