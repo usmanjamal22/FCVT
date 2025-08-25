@@ -130,6 +130,7 @@
 <script src="https://api1.tplmaps.com/js-api-v2/assets/tplmaps.js?api_key=$2a$10$RNdeMDBGrOwbnh81N3RzTDGUxKVId3cLscU3V3HkGdRLKhwI0oOQe"></script>
 <script>
     var userMap;
+    let replayMap;
     var ArrayOfStoreLastLocation = [];
     var ArrayOfmarker = [];
     var ArrayOfmarkerSimple = [];
@@ -137,8 +138,6 @@
     var FuelLastStatus = 0;
     var BatteryVoltageLastStatus = 0;
     var MapRefreshRate = 5000; // refresh every 5 seconds
-
-    let replayMap;
     let replayMarkers = [];
     var ArrayOfmarker = [];
     var PolygonsArray = [];
@@ -171,7 +170,6 @@
                 alert("Please select both start and end datetime.");
                 return;
             }
-
             const startDate = new Date(start);
             const endDate = new Date(end);
             if (startDate >= endDate) {
@@ -189,37 +187,19 @@
                     return;
                 }
                 else {
-                    ; debugger
-                    // alert(replayData);
-                    // alert(userMap);
-                    //alert(replayMap);
-                    //ClearMarkers(ArrayOfmarker);
                     ClearPolygon(PolygonsArray);
                     for (var i = 0; i < replayData.length; i++) {
                         ArrayLatLng[i] = { "lat": replayData[i].latitude, "lng": replayData[i].longitude, "label": replayData[i].statusText };
-
                     }
-
-                    // const replayData1 = [
-                    //     { lat: 30.3795, lng: 67.7258, label: 'near korangi' },
-                    //     { lat: 30.3792, lng: 67.7255, label: 'near korangi' },
-                    //     { lat: 30.3509, lng: 67.7421, label: 'near korangi' },
-                    //     { lat: 30.3507, lng: 67.7421, label: 'near korangi' },
-                    //     { lat: 30.3508, lng: 67.7422, label: 'near korangi' },
-                    //     { lat: 30.3798, lng: 67.7257, label: 'near korangi' },
-                    //     { lat: 30.3797, lng: 67.7257, label: 'near korangi' },
-                    // ];
-
                     addLine(ArrayLatLng, 'Green', '', asset);
                 }
             })
-                .fail(function () {
+            .fail(function () {
                     alert("Failed to load replay data.");
-                });
+            });
         });
 
         function addLine(Area, Color, InfoWindowText, AssetNo) {
-            ; debugger
             var pointList = Area;// JSON.parse(Str1);
             var option = {
                 style: {
@@ -228,14 +208,14 @@
                     color: Color
                 },
                 points: pointList,
-                map: userMap
+                map: replayMap
             };
             line = TPLMaps.overlays.line(option);
             PolygonsArray.push(line);
-            userMap.fitBounds(line.getBounds());
+            replayMap.fitBounds(line.getBounds());
             TPLMaps.overlays.addToMap({
                 geomObject: line,
-                map: userMap
+                map: replayMap
             });
             var options = {
                 geomObject: line,
@@ -256,7 +236,7 @@
         function ClearPolygon(PolygonsArray) {
             if (PolygonsArray.length > 0) {
                 var removePolygonOptions = {
-                    map: userMap,
+                    map: replayMap,
                     polygonArray: PolygonsArray
                 }
                 TPLMaps.overlays.removePolygonFromMap(removePolygonOptions);
@@ -386,6 +366,11 @@
 @section Scripts {
     <script>
         $(document).ready(function () {
+            flatpickr(".datetimepicker", {
+                enableTime: true,
+                dateFormat: "Y-m-d H:i",
+            });
+
             $('#assetSelect').select2({
                 placeholder: "Select an Asset",
                 allowClear: true,
@@ -418,27 +403,21 @@
             });
 
 
-
-            flatpickr(".datetimepicker", {
-                enableTime: true,
-                dateFormat: "Y-m-d H:i",
-            });
-
             $('#divMapReplayModal').on('shown.bs.modal', function () {
-                // if (!replayMap) {
-                //     const options = {
-                //         lat: 30.3753,
-                //         lng: 69.3451,
-                //         zoom: 6,
-                //         minZoom: 0,
-                //         maxZoom: 20,
-                //         divID: "mapReplayModal",
-                //         gestureHandling: false
-                //     };
-                //     replayMap = TPLMaps.map.initMap(options);
-                // } else {
-                //     replayMap.invalidateSize();
-                // }
+                if (!replayMap) {
+                    const options = {
+                        lat: 30.3753,
+                        lng: 69.3451,
+                        zoom: 6,
+                        minZoom: 0,
+                        maxZoom: 20,
+                        divID: "mapReplayModal",
+                        gestureHandling: false
+                    };
+                    replayMap = TPLMaps.map.initMap(options);
+                } else {
+                    replayMap.invalidateSize();
+                }
             });
 
             $('#viewAlarmModal').on('shown.bs.modal', function () {
@@ -460,8 +439,6 @@
                     });
                 }
             });
-
-
         });
     </script>
 

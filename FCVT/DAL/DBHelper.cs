@@ -406,6 +406,27 @@ namespace FCVT.DAL
             }
         }
 
+        public async Task<IEnumerable<VTBmr>> GetReplay(string Asset, string SDT, string EDT)
+        {
+            using (var connection = new SqlConnection(_configuration["ConnectionStrings:DefaultConnection"]))
+            {
+                await connection.OpenAsync();
+
+                var parameters = new DynamicParameters();
+                parameters.Add("@Asset", Asset, DbType.String);
+                parameters.Add("@SDT", SDT, DbType.String);
+                parameters.Add("@EDT", EDT, DbType.String);
+
+                return await connection.QueryAsync<VTBmr>(
+                    "FCVT_Replay_SP"
+                    , parameters
+                    , commandType: CommandType.StoredProcedure
+                    );
+            }
+        }
+
+        
+
         public async Task<IEnumerable<VTAlarms>> GetVTAlarms(string UserID)
         {
             using (var connection = new SqlConnection(_configuration["ConnectionStrings:DefaultConnection"]))

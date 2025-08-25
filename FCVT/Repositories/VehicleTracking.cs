@@ -25,6 +25,12 @@ namespace FCVT.Repositories
             return result;
         }
 
+        public async Task<IEnumerable<VTBmr>> GetReplay(string Asset, string SDT, string EDT)
+        {
+            var result = await _dbHelper.GetReplay(Asset, SDT, EDT);
+            return result;
+        }
+
         public async Task<IEnumerable<VTAlarms>> GetVTAlarms(string UserID)
         {
             var result = await _dbHelper.GetVTAlarms(UserID);

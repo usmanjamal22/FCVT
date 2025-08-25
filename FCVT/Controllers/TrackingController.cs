@@ -27,7 +27,7 @@ namespace FCVT.Controllers
         [HttpGet]
         public async Task<IActionResult> GetReplayData(string asset, DateTime startTime, DateTime endTime)
         {
-            var Lst = await _vehicleTracking.GetBmr(asset, startTime.ToString(), endTime.ToString());
+            var Lst = await _vehicleTracking.GetReplay(asset, startTime.ToString(), endTime.ToString());
             return Json(Lst);
         }
 

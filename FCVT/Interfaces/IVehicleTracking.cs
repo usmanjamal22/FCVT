@@ -9,5 +9,7 @@ namespace FCVT.Interfaces
         Task<IEnumerable<VTBmr>> GetBmr(string Asset, string SDT, string EDT);
 
         Task<IEnumerable<VTAlarms>> GetVTAlarms(string UserID);
+
+        Task<IEnumerable<VTBmr>> GetReplay(string Asset, string SDT, string EDT);
     }
 }
