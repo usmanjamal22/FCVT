@@ -15,6 +15,11 @@
         flex: 1;
         width: 100%;
     }
+
+    .modal-body {
+        overflow-y: auto;
+        max-height: 80vh; /* Adjust based on your UI */
+    }
 </style>
 
 <div class="container-fluid" id="main-container">
@@ -28,21 +33,19 @@
                     <option value="">-- Select Asset --</option>
                 </select>
             </div>
-
             <div class="col-auto">
-                <button class="btn btn-primary btn-sm">View Trace</button>
+                <input class="form-check-input" type="checkbox" id="viewTraceCheckbox">
+                <label class="form-check-label" for="viewTraceCheckbox">
+                    View Trace
+                </label>
             </div>
-
             <div class="col-auto">
                 <button class="btn btn-primary" id="btnOpenReplay">Replay</button>
             </div>
-
             <div class="col-auto">
                 <button class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#viewAlarmModal">
                     <i class="bi bi-plus-circle"></i> Alarms
                 </button>
-
-
             </div>
         </div>
     </div>
@@ -113,7 +116,6 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="submit" class="btn btn-success">Save</button>
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
             </div>
         </div>
@@ -190,13 +192,26 @@
                     ClearPolygon(PolygonsArray);
                     for (var i = 0; i < replayData.length; i++) {
                         ArrayLatLng[i] = { "lat": replayData[i].latitude, "lng": replayData[i].longitude, "label": replayData[i].statusText };
+                        addPoint(replayData[i].latitude
+                            , replayData[i].longitude
+                            , asset
+                            , replayData[i].statusText.toLowerCase()
+                            , "0"
+                            , replayData[i].gpsdateTime
+                            ,''
+                            ,replayData[i].location
+                            ,replayData[i].speed
+                            ,'Red#FF0000'
+                            , replayMap
+                            ,0
+                        );
                     }
-                    addLine(ArrayLatLng, 'Green', '', asset);
+                    addLine(ArrayLatLng, 'Green', '<b>' + asset + '</b>', asset);
                 }
             })
-            .fail(function () {
+                .fail(function () {
                     alert("Failed to load replay data.");
-            });
+                });
         });
 
         function addLine(Area, Color, InfoWindowText, AssetNo) {
@@ -246,6 +261,21 @@
                 PolygonsArray = [];
         }
 
+        $('#viewTraceCheckbox').on('change', function () {
+            if ($(this).is(':checked')) {
+                alert('Checked');
+                const asset = $('#assetSelect').val();
+                if (!asset) {
+                    alert("Please select an asset.");
+                    return;
+                }
+                
+
+            } else {
+                alert('Un Checked');
+            }
+        });
+
     }; //On Load end
 
 
@@ -269,7 +299,20 @@
                             data[i].location,
                             data[i].speed,
                             data[i].color,
+                            userMap
+                            ,1
                         );
+
+                        if ($('#viewTraceCheckbox').is(':checked')) {
+                            const asset = $('#assetSelect').val();
+                            if (asset && asset.toUpperCase() == data[i].asset.toUpperCase()) {
+
+                            }
+                        } 
+                        else {
+                        
+                        }
+
                     }
                 }
             },
@@ -282,7 +325,7 @@
         });
     }
 
-    function addPoint(Latitude, Longitude, Asset, StatusText, Direction, LastReportingDateTime, Region, Location, Speed, Color) {
+    function addPoint(Latitude, Longitude, Asset, StatusText, Direction, LastReportingDateTime, Region, Location, Speed, Color,MapType,RequiredLabel) {
         var basePath = '@(Url.Content("~/images/"))';
         var colorMap = {
             'Red#FF0000': 'path-red.png',
@@ -302,7 +345,7 @@
             iconHeight: 18,
             anchorWidth: 6,
             anchorHeight: 2,
-            map: userMap
+            map: MapType
         };
 
         marker = TPLMaps.overlays.point(option);
@@ -310,7 +353,7 @@
         ArrayOfmarker.push(marker);
         //userMap.setView(marker.getLatLng());
         var options = {
-            map: userMap,
+            map: MapType,
             geomObject: marker
         }
         TPLMaps.overlays.addToMap(options);
@@ -320,17 +363,20 @@
             sticky: false
         }
         TPLMaps.overlays.addInfoPopUp(options);
-        var StrMarkerWithLabel = '<span style="font-size: 12px;" >' + Asset + '</span>';
 
-        var options = {
-            geomObject: marker,
-            label: StrMarkerWithLabel,
-            sticky: false,
-            opacity: 0.9,
-            //direction: 'auto',
-            permanent: true
+        if (RequiredLabel == 1) {
+            var StrMarkerWithLabel = '<span style="font-size: 12px;" >' + Asset + '</span>';
+
+            var options = {
+                geomObject: marker,
+                label: StrMarkerWithLabel,
+                sticky: false,
+                opacity: 0.9,
+                //direction: 'auto',
+                permanent: true
+            }
+            TPLMaps.overlays.addLabel(options);
         }
-        TPLMaps.overlays.addLabel(options);
     }//end add point
 
     function createInfo(Asset, LastReportingDateTime, Location, StatusText) {
@@ -428,6 +474,9 @@
                             "type": "GET",
                             "datatype": "json"
                         },
+                        "pageLength": 50,       // show 50 rows by default
+                        "lengthChange": false,  // hide the "Show X entries" dropdown
+                        "info": false,
                         columns: [
                             { data: 'asset' },
                             { data: 'gpsDateTime' },
