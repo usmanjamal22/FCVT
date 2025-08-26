@@ -143,6 +143,7 @@
     let replayMarkers = [];
     var ArrayOfmarker = [];
     var PolygonsArray = [];
+    let ArrLatLngViewTrace = [];
 
     window.onload = function () {
         var mapOption = {
@@ -198,12 +199,12 @@
                             , replayData[i].statusText.toLowerCase()
                             , "0"
                             , replayData[i].gpsdateTime
-                            ,''
-                            ,replayData[i].location
-                            ,replayData[i].speed
-                            ,'Red#FF0000'
+                            , ''
+                            , replayData[i].location
+                            , replayData[i].speed
+                            , 'Red#FF0000'
                             , replayMap
-                            ,0
+                            , 0
                         );
                     }
                     addLine(ArrayLatLng, 'Green', '<b>' + asset + '</b>', asset);
@@ -263,13 +264,11 @@
 
         $('#viewTraceCheckbox').on('change', function () {
             if ($(this).is(':checked')) {
-                alert('Checked');
                 const asset = $('#assetSelect').val();
                 if (!asset) {
                     alert("Please select an asset.");
                     return;
                 }
-                
 
             } else {
                 alert('Un Checked');
@@ -300,17 +299,17 @@
                             data[i].speed,
                             data[i].color,
                             userMap
-                            ,1
+                            , 1
                         );
 
                         if ($('#viewTraceCheckbox').is(':checked')) {
                             const asset = $('#assetSelect').val();
                             if (asset && asset.toUpperCase() == data[i].asset.toUpperCase()) {
-
+                                ViewTrace(asset, data[i].lat, data[i].lng, data[i].statusText.toLowerCase())
                             }
-                        } 
+                        }
                         else {
-                        
+                            ArrLatLngViewTrace = [];
                         }
 
                     }
@@ -325,7 +324,7 @@
         });
     }
 
-    function addPoint(Latitude, Longitude, Asset, StatusText, Direction, LastReportingDateTime, Region, Location, Speed, Color,MapType,RequiredLabel) {
+    function addPoint(Latitude, Longitude, Asset, StatusText, Direction, LastReportingDateTime, Region, Location, Speed, Color, MapType, RequiredLabel) {
         var basePath = '@(Url.Content("~/images/"))';
         var colorMap = {
             'Red#FF0000': 'path-red.png',
@@ -405,6 +404,23 @@
             TPLMaps.overlays.removeMarkersFromMap(removeMarkerOptions);
             ArrayOfmarker.length = 0;
         }
+    }
+
+    function ViewTrace(asset, latitude, longitude, statusText) {
+        if (ArrLatLngViewTrace.length >= 10) {
+            ArrLatLngViewTrace.shift();
+        }
+
+        ArrLatLngViewTrace.push({
+            lat: latitude,
+            lng: longitude,
+            label: statusText
+        });
+
+        if (ArrLatLngViewTrace.length >= 2) {
+            addLine(ArrLatLngViewTrace, 'Red', '<b>' + asset + '</b>', asset);
+        }
+
     }
 
 </script>
