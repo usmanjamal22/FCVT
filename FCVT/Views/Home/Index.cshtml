@@ -202,7 +202,7 @@
                             , ''
                             , replayData[i].location
                             , replayData[i].speed
-                            , 'Red#FF0000'
+                            , 'Red'
                             , replayMap
                             , 0
                         );
@@ -271,7 +271,7 @@
                 }
 
             } else {
-                alert('Un Checked');
+                //alert('Un Checked');
             }
         });
 
@@ -324,24 +324,28 @@
         });
     }
 
+
     function addPoint(Latitude, Longitude, Asset, StatusText, Direction, LastReportingDateTime, Region, Location, Speed, Color, MapType, RequiredLabel) {
+        ;debugger
         var basePath = '@(Url.Content("~/images/"))';
         var colorMap = {
-            'Red#FF0000': 'path-red.png',
-            'Maroon#800000': 'path-brown.png',
-            'Yellow#FFFF00': 'path-yellow.png',
-            'Olive#808000': 'path-olive.png',
-            'Green#008000': 'path-green.png'
+            'Red': 'path-red.png',
+            'Purple': 'path-purp.png',
+            'Yellow': 'path-yellow.png',
+            'Blue': 'path-blue.png',
+            'Green': 'path-green.png',
+            'Black': 'path-black.png',
+            'Orange': 'path-orange.png'
         };
-        var ImagePath = basePath + (colorMap[Color] || 'path-blue.png');
+        var ImagePath = basePath + (colorMap[Color] || 'path-gray.png');
 
         var StrInfoWindow = createInfo(Asset, LastReportingDateTime, Location, StatusText);
         var option = {
             lat: Latitude,
             lng: Longitude,
             icon: ImagePath,
-            iconWidth: 18,
-            iconHeight: 18,
+            iconWidth: 26,
+            iconHeight: 26,
             anchorWidth: 6,
             anchorHeight: 2,
             map: MapType
