@@ -1,5 +1,7 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Text.Json.Serialization;
 
 namespace FCVT.Models
 {
@@ -75,4 +77,25 @@ namespace FCVT.Models
         public string RoleName { get; set; }
         public string RoleType { get; set; }
     }
+
+    public class ViolationAlarms
+    {
+        public int SerialNo { get; set; }
+        public string DeviceID { get; set; }
+        public DateTime GPSSent { get; set; }
+        public bool ACCIn { get; set; }
+        public bool GPSAvailable { get; set; }
+        public double Speed { get; set; }
+        public string Violation { get; set; }
+        public string Location { get; set; }
+        public DateTime ReceivedTime { get; set; }
+        public string Latitude { get; set; }
+        public string Longitude { get; set; }
+        public int Direction { get; set; }
+        public string BackupBool4 { get; set; }
+        public int Priority { get; set; }
+        public DateTime AddOn { get; set; }
+
+    }
 }
+

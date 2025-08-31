@@ -1,6 +1,7 @@
 using FCVT.DAL;
 using FCVT.Interfaces;
 using FCVT.Repositories;
+using FCVT.SignalR;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Net;
 System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
@@ -24,8 +25,14 @@ builder.Services.AddScoped<IAuthen, Authen>();
 builder.Services.AddScoped<IMenuService, MenuService>();
 builder.Services.AddScoped<IPermissionsManagement, PermissionsManagement>();
 builder.Services.AddScoped<IVehicleTracking, VehicleTracking>();
+builder.Services.AddSignalR();
+builder.Services.AddHostedService<AlarmTableMonitor>();
+
 
 var app = builder.Build();
+
+app.MapHub<AlarmHub>("/alarmHub");
+
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

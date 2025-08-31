@@ -50,6 +50,7 @@
         </div>
     </div>
     <div id="map" class="mt-2"></div>
+    <audio id="alarmSound" src="~/sounds/beepsounds.mp3" preload="auto"></audio>
 </div>
 
 
@@ -326,7 +327,6 @@
 
 
     function addPoint(Latitude, Longitude, Asset, StatusText, Direction, LastReportingDateTime, Region, Location, Speed, Color, MapType, RequiredLabel) {
-        ;debugger
         var basePath = '@(Url.Content("~/images/"))';
         var colorMap = {
             'Red': 'path-red.png',
@@ -511,4 +511,43 @@
         });
     </script>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+
+    <script>
+
+        toastr.options = {
+            "positionClass": "toast-bottom-left",
+            "timeOut": "5000",
+            "closeButton": true,
+            "progressBar": true
+        };
+
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/alarmHub")
+            .build();
+
+        connection.on("ReceiveAlarm", function (alarm) {
+
+
+            const sound = document.getElementById("alarmSound");
+            if (sound) {
+                sound.play().catch(error => {
+                    console.warn("🔇 Auto-play failed:", error);
+                });
+            }
+
+            toastr.info(`🚨 ${alarm.violation} at ${alarm.gpsSent}<br>Device: ${alarm.deviceID}`, "New Alarm");
+        });
+
+        connection.start().catch(err => console.error(err.toString()));
+    </script>
 }
+
+
+
+
+
+

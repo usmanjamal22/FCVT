@@ -425,8 +425,6 @@ namespace FCVT.DAL
             }
         }
 
-        
-
         public async Task<IEnumerable<VTAlarms>> GetVTAlarms(string UserID)
         {
             using (var connection = new SqlConnection(_configuration["ConnectionStrings:DefaultConnection"]))
