@@ -441,7 +441,23 @@ namespace FCVT.DAL
                     );
             }
         }
-        
+
+        public async Task<AssetDetail> GetAssetName(string DeviceID)
+        {
+            using (var connection = new SqlConnection(_configuration["ConnectionStrings:DefaultConnection"]))
+            {
+                await connection.OpenAsync();
+
+                var parameters = new DynamicParameters();
+                parameters.Add("@DeviceID", DeviceID, DbType.String);
+
+                return await connection.QueryFirstOrDefaultAsync<AssetDetail>(
+                    "FCVT_GetAssetName_SP",
+                    parameters,
+                    commandType: CommandType.StoredProcedure
+                );
+            }
+        }
         #endregion
 
         #region EV Battery Asset

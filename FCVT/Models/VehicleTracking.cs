@@ -46,4 +46,10 @@ namespace FCVT.Models
         public string Latitude { get; set; }
         public string Longitude { get; set; }
     }
+
+    public class AssetDetail
+    {
+        public string Asset { get; set; }
+        public string DeviceID { get; set; }
+    }
 }

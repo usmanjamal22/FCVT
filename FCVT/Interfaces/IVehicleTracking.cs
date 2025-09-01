@@ -11,5 +11,7 @@ namespace FCVT.Interfaces
         Task<IEnumerable<VTAlarms>> GetVTAlarms(string UserID);
 
         Task<IEnumerable<VTBmr>> GetReplay(string Asset, string SDT, string EDT);
+
+        Task<AssetDetail> GetAssetName(string DeviceID);
     }
 }

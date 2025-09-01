@@ -1,4 +1,5 @@
-﻿using FCVT.Models;
+﻿using FCVT.Interfaces;
+using FCVT.Models;
 using Microsoft.AspNetCore.SignalR;
 using System.Security.Claims;
 using TableDependency.SqlClient;
@@ -12,11 +13,13 @@ namespace FCVT.SignalR
         private readonly IHubContext<AlarmHub> _hubContext;
         private readonly IConfiguration _config;
         private SqlTableDependency<ViolationAlarms>? _dependency;
+        private readonly IServiceProvider _serviceProvider;
 
-        public AlarmTableMonitor(IHubContext<AlarmHub> hubContext, IConfiguration config)
+        public AlarmTableMonitor(IHubContext<AlarmHub> hubContext, IConfiguration config, IServiceProvider serviceProvider)
         {
             _hubContext = hubContext;
             _config = config;
+            _serviceProvider = serviceProvider;
         }
 
         protected override Task ExecuteAsync(CancellationToken stoppingToken)
@@ -37,15 +40,26 @@ namespace FCVT.SignalR
 
         private async void Changed(object? sender, RecordChangedEventArgs<ViolationAlarms> e)
         {
-            Console.WriteLine($"🔥 Alarm Received");
+            if (e.ChangeType != ChangeType.Insert) return;
 
-            if (e.ChangeType == ChangeType.Insert)
+            var alarm = e.Entity;
+
+            using var scope = _serviceProvider.CreateScope();
+            var vehicleTracking = scope.ServiceProvider.GetRequiredService<IVehicleTracking>();
+
+            var assetDetail = await vehicleTracking.GetAssetName(alarm.DeviceID);
+
+            if (assetDetail != null)
             {
-                var alarm = e.Entity;
+                var enrichedAlarm = new
+                {
+                    alarm.Violation,
+                    alarm.DeviceID,
+                    alarm.GPSSent,
+                    assetDetail.Asset
+                };
 
-                Console.WriteLine($"🔥 Alarm Received: {alarm.DeviceID} at {alarm.Violation}");
-
-                await _hubContext.Clients.All.SendAsync("ReceiveAlarm", alarm);
+                await _hubContext.Clients.All.SendAsync("ReceiveAlarm", enrichedAlarm);
             }
         }
 

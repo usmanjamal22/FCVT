@@ -51,6 +51,7 @@
     </div>
     <div id="map" class="mt-2"></div>
     <audio id="alarmSound" src="~/sounds/beepsounds.mp3" preload="auto"></audio>
+
 </div>
 
 
@@ -525,8 +526,12 @@
             "progressBar": true
         };
 
+        // const connection = new signalR.HubConnectionBuilder()
+        //     .withUrl("/alarmHub")
+        //     .build();
+
         const connection = new signalR.HubConnectionBuilder()
-            .withUrl("/alarmHub")
+            .withUrl("/FCVT/alarmHub")
             .build();
 
         connection.on("ReceiveAlarm", function (alarm) {
@@ -539,7 +544,7 @@
                 });
             }
 
-            toastr.info(`🚨 ${alarm.violation} at ${alarm.gpsSent}<br>Device: ${alarm.deviceID}`, "New Alarm");
+            toastr.info(`🚨 ${alarm.violation} at ${alarm.gpsSent}<br>Asset: ${alarm.asset}`, "New Alarm");
         });
 
         connection.start().catch(err => console.error(err.toString()));

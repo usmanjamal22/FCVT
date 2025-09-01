@@ -36,5 +36,11 @@ namespace FCVT.Repositories
             var result = await _dbHelper.GetVTAlarms(UserID);
             return result;
         }
+
+        public async Task<AssetDetail> GetAssetName(string DeviceID)
+        {
+            var result = await _dbHelper.GetAssetName(DeviceID);
+            return result;
+        }
     }
 }
