@@ -168,17 +168,20 @@
             var ArrayLatLng = [];
             if (!asset) {
                 alert("Please select an asset.");
+                toastr.warning(`⚠️ Please select an asset.`, "Warning");
                 return;
             }
 
             if (!start || !end) {
                 alert("Please select both start and end datetime.");
+                toastr.warning(`⚠️ Please select both start and end datetime.`, "Warning");
                 return;
             }
             const startDate = new Date(start);
             const endDate = new Date(end);
             if (startDate >= endDate) {
                 alert("Start datetime must be before end datetime.");
+                toastr.warning(`⚠️ Start datetime must be before end datetime.`, "Warning");
                 return;
             }
 
@@ -189,6 +192,7 @@
             }, function (replayData) {
                 if (!replayData || replayData.length === 0) {
                     alert("No replay data found for selected range.");
+                    toastr.warning(`⚠️ No replay data found for selected range.`, "Warning");
                     return;
                 }
                 else {
@@ -269,6 +273,7 @@
                 const asset = $('#assetSelect').val();
                 if (!asset) {
                     alert("Please select an asset.");
+                    toastr.warning(`⚠️ Please select an asset.`, "Warning");
                     return;
                 }
 
@@ -463,6 +468,7 @@
                 const selectedAsset = $('#assetSelect').val();
                 if (!selectedAsset) {
                     alert('Please select an asset before opening the replay.');
+                    toastr.warning(`⚠️ Please select an asset before opening the replay.`, "Warning");
                     return;
                 }
                 const modal = new bootstrap.Modal(document.getElementById('divMapReplayModal'));
@@ -526,13 +532,15 @@
             "progressBar": true
         };
 
-        // const connection = new signalR.HubConnectionBuilder()
-        //     .withUrl("/alarmHub")
-        //     .build();
-
+        //Local Host
         const connection = new signalR.HubConnectionBuilder()
-            .withUrl("/FCVT/alarmHub")
+            .withUrl("/alarmHub")
             .build();
+
+        //Live
+        // const connection = new signalR.HubConnectionBuilder()
+        //     .withUrl("/FCVT/alarmHub")
+        //     .build();
 
         connection.on("ReceiveAlarm", function (alarm) {
 

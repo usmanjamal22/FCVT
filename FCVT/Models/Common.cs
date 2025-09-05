@@ -2,6 +2,8 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Text.Json.Serialization;
+using System.ComponentModel.DataAnnotations.Schema;
+
 
 namespace FCVT.Models
 {
@@ -81,9 +83,15 @@ namespace FCVT.Models
     public class ViolationAlarms
     {
         public int SerialNo { get; set; }
+
+        [Column("Device Id")]
         public string DeviceID { get; set; }
-        public DateTime GPSSent { get; set; }
+
+        [Column("Gps Sent")]
+        public DateTime? GPSSent { get; set; }
         public bool ACCIn { get; set; }
+
+        [Column ("GPS Available")]
         public bool GPSAvailable { get; set; }
         public double Speed { get; set; }
         public string Violation { get; set; }
