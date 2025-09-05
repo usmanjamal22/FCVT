@@ -533,14 +533,14 @@
         };
 
         //Local Host
-        const connection = new signalR.HubConnectionBuilder()
-            .withUrl("/alarmHub")
-            .build();
+        // const connection = new signalR.HubConnectionBuilder()
+        //     .withUrl("/alarmHub")
+        //     .build();
 
         //Live
-        // const connection = new signalR.HubConnectionBuilder()
-        //     .withUrl("/FCVT/alarmHub")
-        //     .build();
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/FCVT/alarmHub")
+            .build();
 
         connection.on("ReceiveAlarm", function (alarm) {
 
